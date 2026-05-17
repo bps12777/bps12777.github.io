@@ -2,51 +2,170 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Cyber App</title>
+<title>CYBER SYSTEM</title>
 
 <style>
+
 body{
-  margin:0;
-  background:black;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  font-family:Arial;
+    margin:0;
+    overflow:hidden;
+    font-family:Arial;
+    background:black;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    height:100vh;
 }
+
+/* 움직이는 네온 배경 */
+
+body::before{
+    content:"";
+
+    position:absolute;
+    width:200%;
+    height:200%;
+
+    background:
+    radial-gradient(circle, #00ffff22 10%, transparent 10%),
+    radial-gradient(circle, #ff00ff22 10%, transparent 10%);
+
+    background-size:120px 120px;
+
+    animation:moveBg 10s linear infinite;
+
+    z-index:-2;
+}
+
+/* 어두운 오버레이 */
+
+body::after{
+    content:"";
+
+    position:absolute;
+    width:100%;
+    height:100%;
+
+    background:rgba(0,0,0,0.7);
+
+    z-index:-1;
+}
+
+/* 배경 움직임 */
+
+@keyframes moveBg{
+    from{
+        transform:translate(0,0);
+    }
+
+    to{
+        transform:translate(-120px,-120px);
+    }
+}
+
+/* 중앙 패널 */
 
 .box{
-  text-align:center;
-  color:#00ffff;
-  border:2px solid #00ffff;
-  padding:40px;
-  border-radius:20px;
-  box-shadow:0 0 20px #00ffff;
+    color:#00ffff;
+
+    text-align:center;
+
+    border:2px solid #00ffff;
+
+    padding:40px;
+
+    border-radius:20px;
+
+    box-shadow:
+    0 0 20px #00ffff,
+    0 0 40px #00ffff;
+
+    background:rgba(0,0,0,0.4);
+
+    backdrop-filter:blur(5px);
 }
+
+/* 제목 */
 
 h1{
-  text-shadow:0 0 10px #00ffff;
+    font-size:50px;
+
+    text-shadow:
+    0 0 10px #00ffff,
+    0 0 20px #00ffff;
+
+    animation:flicker 2s infinite;
 }
 
-button{
-  background:#ff00ff;
-  color:white;
-  border:none;
-  padding:15px 30px;
-  border-radius:10px;
-  font-size:20px;
+/* 깜빡임 효과 */
+
+@keyframes flicker{
+    0%{opacity:1;}
+    50%{opacity:0.8;}
+    100%{opacity:1;}
 }
+
+/* 버튼 */
+
+button{
+    margin-top:20px;
+
+    background:#ff00ff;
+
+    color:white;
+
+    border:none;
+
+    padding:15px 40px;
+
+    font-size:20px;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    box-shadow:
+    0 0 10px #ff00ff,
+    0 0 20px #ff00ff;
+
+    transition:0.3s;
+}
+
+button:hover{
+    transform:scale(1.1);
+
+    box-shadow:
+    0 0 20px #ff00ff,
+    0 0 40px #ff00ff;
+}
+
+p{
+    color:#00ff99;
+
+    margin-top:10px;
+
+    letter-spacing:3px;
+}
+
 </style>
 </head>
 
 <body>
 
 <div class="box">
-<h1>CYBER APP</h1>
 
-<button onclick="alert('SYSTEM ONLINE')">
-START
+<h1>CYBER SYSTEM</h1>
+
+<p>SYSTEM ONLINE</p>
+
+<button onclick="alert('ACCESS GRANTED')">
+
+ENTER
+
 </button>
+
 </div>
 
 </body>
