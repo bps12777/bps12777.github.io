@@ -158,7 +158,7 @@ p{
 
 <h1>CYBER SYSTEM</h1>
 
-<p>SYSTEM ONLINE</p>
+<p id="terminal"></p>
 
 <button onclick="alert('ACCESS GRANTED')">
 
@@ -167,6 +167,47 @@ ENTER
 </button>
 
 </div>
+<script>
 
+const text = [
+"CONNECTING TO NETWORK...",
+"BYPASSING SECURITY...",
+"ACCESSING MAINFRAME...",
+"ACCESS GRANTED"
+];
+
+let line = 0;
+let char = 0;
+
+const terminal = document.getElementById("terminal");
+
+function typeEffect(){
+
+    if(line < text.length){
+
+        if(char < text[line].length){
+
+            terminal.innerHTML += text[line].charAt(char);
+
+            char++;
+
+            setTimeout(typeEffect, 50);
+
+        }else{
+
+            terminal.innerHTML += "<br>";
+
+            line++;
+
+            char = 0;
+
+            setTimeout(typeEffect, 500);
+        }
+    }
+}
+
+typeEffect();
+
+</script>
 </body>
 </html>
