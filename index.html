@@ -264,8 +264,16 @@ function addPost(){
         "rgba(0,0,0,0.5)";
 
         newPost.innerHTML =
-        "🟢 LOG ENTRY<br><br>" +
-        input.value;
+
+"🟢 LOG ENTRY<br><br>" +
+
+input.value +
+
+"<br><br>" +
+
+"<button onclick='deletePost(this)' " +
+
+"style='background:red;color:white;border:none;padding:5px 10px;'>DELETE</button>";
 
         posts.prepend(newPost);
 
