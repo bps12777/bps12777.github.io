@@ -275,6 +275,13 @@ input.value +
 
 "style='background:red;color:white;border:none;padding:5px 10px;'>DELETE</button>";
 
+function deletePost(button){
+
+    button.parentElement.remove();
+
+    savePosts();
+}
+
         posts.prepend(newPost);
 
         savePosts();
