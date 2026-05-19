@@ -260,15 +260,42 @@ function addPost(){
         newPost.style.boxShadow =
         "0 0 10px #00ffff";
 
+        newPost.style.background =
+        "rgba(0,0,0,0.5)";
+
         newPost.innerHTML =
         "🟢 LOG ENTRY<br><br>" +
         input.value;
 
         posts.prepend(newPost);
 
+        savePosts();
+
         input.value = "";
     }
 }
+
+function savePosts(){
+
+    localStorage.setItem(
+        "cyberPosts",
+        document.getElementById("posts").innerHTML
+    );
+}
+
+function loadPosts(){
+
+    const saved =
+    localStorage.getItem("cyberPosts");
+
+    if(saved){
+
+        document.getElementById("posts").innerHTML =
+        saved;
+    }
+}
+
+loadPosts();
 
 </script>
 </body>
