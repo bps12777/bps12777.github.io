@@ -166,6 +166,33 @@ ENTER
 
 </button>
 
+<br><br>
+
+<textarea id="postInput"
+placeholder="WRITE LOG..."
+style="
+width:300px;
+height:100px;
+background:black;
+color:#00ffcc;
+border:1px solid #00ffff;
+padding:10px;
+font-size:16px;
+"></textarea>
+
+<br><br>
+
+<button onclick="addPost()">
+SAVE LOG
+</button>
+
+<div id="posts"
+style="
+margin-top:30px;
+text-align:left;
+width:300px;
+"></div>
+
 </div>
 <script>
 
@@ -207,6 +234,41 @@ function typeEffect(){
 }
 
 typeEffect();
+
+function addPost(){
+
+    const input =
+    document.getElementById("postInput");
+
+    const posts =
+    document.getElementById("posts");
+
+    if(input.value.trim() !== ""){
+
+        const newPost =
+        document.createElement("div");
+
+        newPost.style.border =
+        "1px solid #00ffff";
+
+        newPost.style.padding =
+        "10px";
+
+        newPost.style.marginTop =
+        "10px";
+
+        newPost.style.boxShadow =
+        "0 0 10px #00ffff";
+
+        newPost.innerHTML =
+        "🟢 LOG ENTRY<br><br>" +
+        input.value;
+
+        posts.prepend(newPost);
+
+        input.value = "";
+    }
+}
 
 </script>
 </body>
