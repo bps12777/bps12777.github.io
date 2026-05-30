@@ -190,6 +190,33 @@ ENTER
 메모
 </button>
 
+<br><br>
+
+<div id="editor" style="display:none;">
+
+<h2 id="categoryTitle"></h2>
+
+<textarea
+id="categoryText"
+style="
+width:500px;
+height:250px;
+background:black;
+color:#00ffcc;
+border:1px solid #00ffff;
+padding:10px;
+font-size:16px;
+">
+</textarea>
+
+<br><br>
+
+<button onclick="saveCategory()">
+SAVE
+</button>
+
+</div>
+
 </div>
 
 style="
@@ -317,6 +344,19 @@ function loadPosts(){
 
 loadPosts();
 
+function saveCategory(){
+
+    const text =
+    document.getElementById("categoryText").value;
+
+    localStorage.setItem(
+        currentCategory,
+        text
+    );
+
+    alert("DATABASE SAVED");
+}
+
 function openArchive(){
 
     document.getElementById("terminal").style.display="none";
@@ -326,9 +366,23 @@ function openArchive(){
     document.getElementById("archive").style.display="block";
 }
 
+let currentCategory = "";
+
 function openCategory(name){
 
-    alert(name + " 카테고리");
+    currentCategory = name;
+
+    document.getElementById("editor").style.display =
+    "block";
+
+    document.getElementById("categoryTitle").innerText =
+    name.toUpperCase();
+
+    const saved =
+    localStorage.getItem(name);
+
+    document.getElementById("categoryText").value =
+    saved || "";
 }
 
 </script>
