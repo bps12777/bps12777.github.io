@@ -166,25 +166,32 @@ ENTER
 
 <br><br>
 
-<textarea id="postInput"
-placeholder="WRITE LOG..."
-style="
-width:300px;
-height:100px;
-background:black;
-color:#00ffcc;
-border:1px solid #00ffff;
-padding:10px;
-font-size:16px;
-"></textarea>
+<div id="archive" style="display:none;">
 
-<br><br>
+<h2>CYBER ARCHIVE</h2>
 
-<button onclick="addPost()">
-SAVE LOG
+<button onclick="openCategory('science')">
+과학
 </button>
 
-<div id="posts"
+<button onclick="openCategory('economy')">
+경제
+</button>
+
+<button onclick="openCategory('history')">
+역사
+</button>
+
+<button onclick="openCategory('ideas')">
+아이디어
+</button>
+
+<button onclick="openCategory('memo')">
+메모
+</button>
+
+</div>
+
 style="
 margin-top:30px;
 text-align:left;
@@ -309,6 +316,20 @@ function loadPosts(){
 }
 
 loadPosts();
+
+function openArchive(){
+
+    document.getElementById("terminal").style.display="none";
+
+    document.querySelector("h1").innerText="CYBER ARCHIVE";
+
+    document.getElementById("archive").style.display="block";
+}
+
+function openCategory(name){
+
+    alert(name + " 카테고리");
+}
 
 </script>
 </body>
