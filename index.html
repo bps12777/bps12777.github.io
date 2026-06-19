@@ -290,6 +290,34 @@ function openPost(index){
 
     document.getElementById("viewContent").innerText =
     posts[index].content;
+
+document.getElementById("titleInput").value =
+posts[index].title;
+
+document.getElementById("contentInput").value =
+posts[index].content;
+}
+
+function editPost(){
+
+    if(currentPost < 0){
+
+        return;
+    }
+
+    posts[currentPost].title =
+    document.getElementById("titleInput").value;
+
+    posts[currentPost].content =
+    document.getElementById("contentInput").value;
+
+    savePosts();
+
+    renderPosts();
+
+    openPost(currentPost);
+
+    alert("수정 완료");
 }
 
 function deletePost(){
