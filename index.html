@@ -293,6 +293,75 @@ textarea{
     text-shadow:
     0 0 10px #00eaff;
 }
+
+.terminalFrame{
+
+    max-width:1200px;
+
+    margin:auto;
+
+    border:2px solid #00eaff;
+
+    padding:25px;
+
+    box-shadow:
+    0 0 10px #00eaff,
+    0 0 30px rgba(0,234,255,.5);
+
+    position:relative;
+
+    min-height:90vh;
+}
+
+.terminalFrame::before{
+
+    content:"";
+
+    position:absolute;
+
+    top:10px;
+
+    left:10px;
+
+    width:40px;
+
+    height:40px;
+
+    border-top:3px solid #00eaff;
+
+    border-left:3px solid #00eaff;
+}
+
+.terminalFrame::after{
+
+    content:"";
+
+    position:absolute;
+
+    bottom:10px;
+
+    right:10px;
+
+    width:40px;
+
+    height:40px;
+
+    border-bottom:3px solid #00eaff;
+
+    border-right:3px solid #00eaff;
+}
+
+.scanLine{
+
+    height:2px;
+
+    background:#00eaff;
+
+    margin-bottom:20px;
+
+    box-shadow:
+    0 0 10px #00eaff;
+}
     
 </style>
 </head>
@@ -301,6 +370,8 @@ textarea{
 
 <!-- 첫 화면 -->
 
+<div class="terminalFrame">
+    
 <div id="homePage">
 
 <div class="box">
@@ -326,6 +397,7 @@ ACCESS
 <div id="boardPage">
 
 <div class="listHeader">
+<div class="scanLine"></div>    
 
     <span class="listIcon">■</span>
 
@@ -598,6 +670,6 @@ function loadPosts(){
 loadPosts();
 
 </script>
-
+</div>
 </body>
 </html>
