@@ -57,24 +57,42 @@ h1{
 
 button{
 
-    background:#ff00ff;
+    background:#ff0088;
 
     color:white;
 
     border:none;
 
-    padding:12px 25px;
+    padding:15px 40px;
 
-    border-radius:10px;
+    font-size:18px;
+
+    font-weight:bold;
+
+    letter-spacing:2px;
+
+    border-radius:4px;
 
     cursor:pointer;
 
-    margin:5px;
-
     box-shadow:
-    0 0 10px #ff00ff;
+    0 0 10px #ff0088,
+    0 0 25px #ff0088,
+    0 0 50px rgba(255,0,136,.5);
+
+    transition:.25s;
 }
 
+button:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:
+    0 0 20px #ff0088,
+    0 0 40px #ff0088,
+    0 0 80px rgba(255,0,136,.8);
+}
+    
 /* 게시판 */
 
 #boardPage{
@@ -137,22 +155,31 @@ textarea{
 
 .post{
 
-    border:1px solid #00ffff;
+    border:1px solid #00eaff;
 
-    padding:10px;
+    background:#041018;
 
-    margin-top:10px;
+    padding:18px;
+
+    margin-top:15px;
 
     cursor:pointer;
 
+    transition:.3s;
+
     box-shadow:
-    0 0 10px #00ffff;
+    0 0 8px rgba(0,234,255,.5);
+
+    position:relative;
 }
 
 .post:hover{
 
+    transform:translateX(8px);
+
     box-shadow:
-    0 0 20px #00ffff;
+    0 0 15px #00eaff,
+    0 0 30px rgba(0,234,255,.7);
 }
 
 #viewBox{
@@ -279,7 +306,7 @@ placeholder="내용"></textarea>
 <br><br>
 
 <button onclick="addPost()">
-저장
+SAVE LOG
 </button>
 
 <div id="postList"></div>
@@ -394,11 +421,15 @@ function renderPosts(){
 
 +
 
-"<span>" + post.title + "</span>"
+"<span style='font-size:18px;font-weight:bold;'>"
+
++ post.title +
+
+"</span>"
 
 +
 
-"<span style='color:#888;font-size:12px;'>"
+<span style='color:#00eaff;font-size:12px;opacity:.7;'>
 
 +
 
