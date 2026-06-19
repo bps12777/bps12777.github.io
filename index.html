@@ -363,6 +363,62 @@ textarea{
     0 0 10px #00eaff;
 }
     
+.editBtn{
+
+    background:#00cfff;
+
+    color:black;
+
+    box-shadow:
+    0 0 10px #00cfff,
+    0 0 30px #00cfff;
+}
+
+.editBtn:hover{
+
+    box-shadow:
+    0 0 20px #00cfff,
+    0 0 50px #00cfff;
+}
+
+.deleteBtn{
+
+    background:#ff3333;
+
+    color:white;
+
+    box-shadow:
+    0 0 10px #ff3333,
+    0 0 30px #ff3333;
+}
+
+.deleteBtn:hover{
+
+    box-shadow:
+    0 0 20px #ff3333,
+    0 0 50px #ff3333;
+}
+
+.accessBtn{
+
+    font-size:22px;
+
+    padding:18px 60px;
+
+    letter-spacing:4px;
+}
+
+#totalPosts{
+
+    color:#00eaff;
+
+    margin-bottom:20px;
+
+    opacity:.8;
+
+    font-size:14px;
+}
+    
 </style>
 </head>
 
@@ -384,7 +440,7 @@ BPS TERMINAL
 SECURE PERSONAL ARCHIVE SYSTEM
 </div>
 
-<button onclick="enterSystem()">
+<button class="accessBtn" onclick="enterSystem()">
 ACCESS
 </button>
 
@@ -398,6 +454,10 @@ ACCESS
 
 <div class="listHeader">
 <div class="scanLine"></div>    
+
+    <div id="totalPosts">
+TOTAL FILES : 0
+</div>
 
     <span class="listIcon">■</span>
 
@@ -430,12 +490,12 @@ SAVE LOG
 
 <p id="viewContent"></p>
 
-<button onclick="editPost()">
-수정
+<button class="editBtn" onclick="editPost()">
+EDIT FILE
 </button>
 
-<button onclick="deletePost()">
-삭제
+<button class="deleteBtn" onclick="deletePost()">
+PURGE
 </button>
 
 </div>
@@ -498,6 +558,7 @@ posts.push({
 
     renderPosts();
 
+
     document.getElementById("titleInput").value = "";
 
     document.getElementById("contentInput").value = "";
@@ -552,13 +613,16 @@ post.updated
 
 "</div>";
 
-        div.onclick = function(){
+                div.onclick = function(){
 
             openPost(index);
         };
 
         list.prepend(div);
     });
+
+    document.getElementById("totalPosts").innerText =
+    "TOTAL FILES : " + posts.length;
 }
 
 function openPost(index){
