@@ -8,9 +8,16 @@
 
 body{
     margin:0;
-    background:black;
-    color:#00ffff;
-    font-family:Arial;
+    background:#02070a;
+    color:#00eaff;
+
+    font-family:
+    "Consolas",
+    monospace;
+
+    padding:20px;
+
+    min-height:100vh;
 }
 
 /* 첫 화면 */
@@ -145,6 +152,39 @@ textarea{
     0 0 10px #00ffff;
 }
 
+.mainTitle{
+
+    text-align:center;
+
+    font-size:70px;
+
+    letter-spacing:8px;
+
+    color:#00eaff;
+
+    margin-top:20px;
+
+    margin-bottom:10px;
+
+    text-shadow:
+    0 0 10px #00eaff,
+    0 0 20px #00eaff,
+    0 0 40px #00eaff;
+}
+
+.subTitle{
+
+    text-align:center;
+
+    color:#00eaff;
+
+    letter-spacing:3px;
+
+    margin-bottom:40px;
+
+    opacity:0.8;
+}    
+    
 </style>
 </head>
 
@@ -156,7 +196,13 @@ textarea{
 
 <div class="box">
 
-<h1>BPS TERMINAL</h1>
+<h1 class="mainTitle">
+BPS TERMINAL
+</h1>
+
+<div class="subTitle">
+SECURE PERSONAL ARCHIVE SYSTEM
+</div>
 
 <button onclick="enterSystem()">
 접속
