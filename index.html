@@ -2,115 +2,53 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>bps</title>
+<title>BPS TERMINAL</title>
 
 <style>
 
 body{
     margin:0;
-    overflow:hidden;
-    font-family:Arial;
     background:black;
+    color:#00ffff;
+    font-family:Arial;
+}
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
+/* 첫 화면 */
+
+#homePage{
 
     height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
 }
-
-/* 움직이는 네온 배경 */
-
-body::before{
-    content:"";
-
-    position:absolute;
-    width:200%;
-    height:200%;
-
-    background:
-    radial-gradient(circle, #00ffff22 10%, transparent 10%),
-    radial-gradient(circle, #ff00ff22 10%, transparent 10%);
-
-    background-size:120px 120px;
-
-    animation:moveBg 10s linear infinite;
-
-    z-index:-2;
-}
-
-/* 어두운 오버레이 */
-
-body::after{
-    content:"";
-
-    position:absolute;
-    width:100%;
-    height:100%;
-
-    background:rgba(0,0,0,0.7);
-
-    z-index:-1;
-}
-
-/* 배경 움직임 */
-
-@keyframes moveBg{
-    from{
-        transform:translate(0,0);
-    }
-
-    to{
-        transform:translate(-120px,-120px);
-    }
-}
-
-/* 중앙 패널 */
 
 .box{
-    color:#00ffff;
 
     text-align:center;
 
-    border:2px solid #00ffff;
-
     padding:40px;
+
+    border:2px solid #00ffff;
 
     border-radius:20px;
 
     box-shadow:
     0 0 20px #00ffff,
     0 0 40px #00ffff;
-
-    background:rgba(0,0,0,0.4);
-
-    backdrop-filter:blur(5px);
 }
 
-/* 제목 */
-
 h1{
-    font-size:50px;
 
     text-shadow:
     0 0 10px #00ffff,
     0 0 20px #00ffff;
-
-    animation:flicker 2s infinite;
 }
-
-/* 깜빡임 효과 */
-
-@keyframes flicker{
-    0%{opacity:1;}
-    50%{opacity:0.8;}
-    100%{opacity:1;}
-}
-
-/* 버튼 */
 
 button{
-    margin-top:20px;
 
     background:#ff00ff;
 
@@ -118,35 +56,93 @@ button{
 
     border:none;
 
-    padding:15px 40px;
-
-    font-size:20px;
+    padding:12px 25px;
 
     border-radius:10px;
 
     cursor:pointer;
 
-    box-shadow:
-    0 0 10px #ff00ff,
-    0 0 20px #ff00ff;
-
-    transition:0.3s;
-}
-
-button:hover{
-    transform:scale(1.1);
+    margin:5px;
 
     box-shadow:
-    0 0 20px #ff00ff,
-    0 0 40px #ff00ff;
+    0 0 10px #ff00ff;
 }
 
-p{
-    color:#00ff99;
+/* 게시판 */
+
+#boardPage{
+
+    display:none;
+
+    padding:20px;
+}
+
+input{
+
+    width:100%;
+
+    padding:10px;
+
+    margin-bottom:10px;
+
+    background:black;
+
+    color:#00ffff;
+
+    border:1px solid #00ffff;
+
+    box-sizing:border-box;
+}
+
+textarea{
+
+    width:100%;
+
+    height:150px;
+
+    padding:10px;
+
+    background:black;
+
+    color:#00ffff;
+
+    border:1px solid #00ffff;
+
+    box-sizing:border-box;
+}
+
+.post{
+
+    border:1px solid #00ffff;
+
+    padding:10px;
 
     margin-top:10px;
 
-    letter-spacing:3px;
+    cursor:pointer;
+
+    box-shadow:
+    0 0 10px #00ffff;
+}
+
+.post:hover{
+
+    box-shadow:
+    0 0 20px #00ffff;
+}
+
+#viewBox{
+
+    display:none;
+
+    margin-top:20px;
+
+    border:1px solid #00ffff;
+
+    padding:15px;
+
+    box-shadow:
+    0 0 10px #00ffff;
 }
 
 </style>
@@ -154,237 +150,186 @@ p{
 
 <body>
 
+<!-- 첫 화면 -->
+
+<div id="homePage">
+
 <div class="box">
 
-<h1>bps</h1>
+<h1>BPS TERMINAL</h1>
 
-<p id="terminal"></p>
-
-<button onclick="openArchive()">
-ENTER
+<button onclick="enterSystem()">
+접속
 </button>
 
-<br><br>
+</div>
 
-<div id="archive" style="display:none;">
+</div>
 
-<h2>CYBER ARCHIVE</h2>
+<!-- 게시판 화면 -->
 
-<button onclick="openCategory('science')">
-과학
-</button>
+<div id="boardPage">
 
-<button onclick="openCategory('economy')">
-경제
-</button>
+<h2>LIST</h2>
 
-<button onclick="openCategory('history')">
-역사
-</button>
-
-<button onclick="openCategory('ideas')">
-아이디어
-</button>
-
-<button onclick="openCategory('memo')">
-메모
-</button>
-
-<br><br>
-
-<div id="editor" style="display:none;">
-
-<h2 id="categoryTitle"></h2>
+<input
+id="titleInput"
+placeholder="제목">
 
 <textarea
-id="categoryText"
-style="
-width:500px;
-height:250px;
-background:black;
-color:#00ffcc;
-border:1px solid #00ffff;
-padding:10px;
-font-size:16px;
-">
-</textarea>
+id="contentInput"
+placeholder="내용"></textarea>
 
 <br><br>
 
-<button onclick="saveCategory()">
-SAVE
+<button onclick="addPost()">
+저장
+</button>
+
+<div id="postList"></div>
+
+<div id="viewBox">
+
+<h3 id="viewTitle"></h3>
+
+<p id="viewContent"></p>
+
+<button onclick="deletePost()">
+삭제
 </button>
 
 </div>
 
 </div>
 
-style="
-margin-top:30px;
-text-align:left;
-width:300px;
-"></div>
-
-</div>
 <script>
 
-const text = [
-"CONNECTING TO NETWORK...",
-"BYPASSING SECURITY...",
-"ACCESSING MAINFRAME...",
-"ACCESS GRANTED"
-];
+let posts = [];
 
-let line = 0;
-let char = 0;
+let currentPost = -1;
 
-const terminal = document.getElementById("terminal");
+function enterSystem(){
 
-function typeEffect(){
+    document.getElementById("homePage").style.display =
+    "none";
 
-    if(line < text.length){
-
-        if(char < text[line].length){
-
-            terminal.innerHTML += text[line].charAt(char);
-
-            char++;
-
-            setTimeout(typeEffect, 50);
-
-        }else{
-
-            terminal.innerHTML += "<br>";
-
-            line++;
-
-            char = 0;
-
-            setTimeout(typeEffect, 500);
-        }
-    }
+    document.getElementById("boardPage").style.display =
+    "block";
 }
-
-typeEffect();
 
 function addPost(){
 
-    const input =
-    document.getElementById("postInput");
+    const title =
+    document.getElementById("titleInput").value;
 
-    const posts =
-    document.getElementById("posts");
+    const content =
+    document.getElementById("contentInput").value;
 
-    if(input.value.trim() !== ""){
+    if(title === "" || content === ""){
 
-        const newPost =
-        document.createElement("div");
+        alert("제목과 내용을 입력하세요");
 
-        newPost.style.border =
-        "1px solid #00ffff";
+        return;
+    }
 
-        newPost.style.padding =
-        "10px";
+    posts.push({
 
-        newPost.style.marginTop =
-        "10px";
+        title:title,
 
-        newPost.style.boxShadow =
-        "0 0 10px #00ffff";
-
-        newPost.style.background =
-        "rgba(0,0,0,0.5)";
-
-        newPost.innerHTML =
-
-"🟢 LOG ENTRY<br><br>" +
-
-input.value +
-
-"<br><br>" +
-
-"<button onclick='deletePost(this)' " +
-
-"style='background:red;color:white;border:none;padding:5px 10px;'>DELETE</button>";
-
-function deletePost(button){
-
-    button.parentElement.remove();
+        content:content
+    });
 
     savePosts();
+
+    renderPosts();
+
+    document.getElementById("titleInput").value = "";
+
+    document.getElementById("contentInput").value = "";
 }
 
-        posts.prepend(newPost);
+function renderPosts(){
 
-        savePosts();
+    const list =
+    document.getElementById("postList");
 
-        input.value = "";
+    list.innerHTML = "";
+
+    posts.forEach((post,index)=>{
+
+        const div =
+        document.createElement("div");
+
+        div.className = "post";
+
+        div.innerHTML =
+        post.title;
+
+        div.onclick = function(){
+
+            openPost(index);
+        };
+
+        list.prepend(div);
+    });
+}
+
+function openPost(index){
+
+    currentPost = index;
+
+    document.getElementById("viewBox").style.display =
+    "block";
+
+    document.getElementById("viewTitle").innerText =
+    posts[index].title;
+
+    document.getElementById("viewContent").innerText =
+    posts[index].content;
+}
+
+function deletePost(){
+
+    if(currentPost < 0){
+
+        return;
     }
+
+    posts.splice(currentPost,1);
+
+    savePosts();
+
+    renderPosts();
+
+    document.getElementById("viewBox").style.display =
+    "none";
 }
 
 function savePosts(){
 
     localStorage.setItem(
-        "cyberPosts",
-        document.getElementById("posts").innerHTML
+        "bps_posts",
+        JSON.stringify(posts)
     );
 }
 
 function loadPosts(){
 
     const saved =
-    localStorage.getItem("cyberPosts");
+    localStorage.getItem("bps_posts");
 
     if(saved){
 
-        document.getElementById("posts").innerHTML =
-        saved;
+        posts =
+        JSON.parse(saved);
+
+        renderPosts();
     }
 }
 
 loadPosts();
 
-function saveCategory(){
-
-    const text =
-    document.getElementById("categoryText").value;
-
-    localStorage.setItem(
-        currentCategory,
-        text
-    );
-
-    alert("DATABASE SAVED");
-}
-
-function openArchive(){
-
-    document.getElementById("terminal").style.display="none";
-
-    document.querySelector("h1").innerText="CYBER ARCHIVE";
-
-    document.getElementById("archive").style.display="block";
-}
-
-let currentCategory = "";
-
-function openCategory(name){
-
-    currentCategory = name;
-
-    document.getElementById("editor").style.display =
-    "block";
-
-    document.getElementById("categoryTitle").innerText =
-    name.toUpperCase();
-
-    const saved =
-    localStorage.getItem(name);
-
-    document.getElementById("categoryText").value =
-    saved || "";
-}
-
 </script>
+
 </body>
 </html>
