@@ -122,6 +122,8 @@ button:hover{
 
 input{
 
+    font-family:"Consolas", monospace;
+    
     width:100%;
 
     height:60px;
@@ -146,6 +148,8 @@ input{
 }
 textarea{
 
+    font-family:"Consolas", monospace;
+    
     width:100%;
 
     height:220px;
@@ -591,6 +595,9 @@ body::after{
 
 .liveDot{
 
+    position:relative;
+    top:-2px;
+    
     display:inline-block;
 
     width:10px;
@@ -647,6 +654,18 @@ body::after{
     0 0 40px #00eaff,
     0 0 80px #00eaff;
 }
+
+.listHeader{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.listLeft{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
     
 </style>
 </head>
@@ -696,16 +715,18 @@ ACCESS
 BPS TERMINAL
 </h1>
     
+<div class="scanLine"></div>
+
 <div class="listHeader">
-<div class="scanLine"></div>    
+
+    <div class="listLeft">
+        <span class="listIcon">■</span>
+        LIST <span class="liveDot"></span>
+    </div>
 
     <div id="totalPosts">
-TOTAL FILES : 0
-</div>
-
-    <span class="listIcon">■</span>
-
-    LIST <span class="liveDot"></span>
+        TOTAL FILES : 0
+    </div>
 
 </div>
 
@@ -839,7 +860,7 @@ div.innerHTML =
 
 +
 
-"<span style='color:#00eaff;font-size:12px;opacity:.7;'>"
+<span style='color:#00eaff;font-size:12px;opacity:.7;position:relative;top:3px;'>
 
 +
 
