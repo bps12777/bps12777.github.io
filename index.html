@@ -186,14 +186,21 @@ textarea{
 
     display:none;
 
-    margin-top:20px;
+    margin-top:30px;
 
-    border:1px solid #00ffff;
+    border:1px solid #00eaff;
 
-    padding:15px;
+    background:#000814;
+
+    padding:25px;
 
     box-shadow:
-    0 0 10px #00ffff;
+    0 0 15px #00eaff,
+    inset 0 0 10px rgba(0,234,255,.2);
+
+    position:relative;
+
+    overflow:hidden;
 }
 
 .mainTitle{
@@ -214,6 +221,9 @@ textarea{
     0 0 10px #00eaff,
     0 0 20px #00eaff,
     0 0 40px #00eaff;
+
+    animation:neonPulse 2.5s infinite;
+    
 }
 
 .subTitle{
@@ -260,26 +270,24 @@ textarea{
 
     float:right;
 
-    width:220px;
+    width:250px;
+
+    background:#021018;
 
     border:1px solid #00eaff;
 
     padding:15px;
 
-    background:#031018;
-
     box-shadow:
-    0 0 10px #00eaff;
+    0 0 15px rgba(0,234,255,.6);
 
     color:#00eaff;
-
-    margin-left:20px;
-
-    margin-bottom:15px;
 
     font-size:13px;
 
     line-height:1.8;
+
+    margin-left:20px;
 }
 
 #viewTitle{
@@ -458,6 +466,88 @@ body::after{
     text-shadow:
     0 0 10px #00ff88;
 }
+
+.terminalFrame::before{
+    content:"";
+    position:absolute;
+    top:15px;
+    left:15px;
+    width:120px;
+    height:2px;
+    background:#00eaff;
+    box-shadow:0 0 15px #00eaff;
+}
+
+.terminalFrame::after{
+    content:"";
+    position:absolute;
+    bottom:15px;
+    right:15px;
+    width:120px;
+    height:2px;
+    background:#ff0088;
+    box-shadow:0 0 15px #ff0088;
+}
+
+#viewTitle{
+
+    font-size:32px;
+
+    color:#00eaff;
+
+    letter-spacing:2px;
+
+    text-shadow:
+    0 0 15px #00eaff;
+
+    margin-bottom:20px;
+}
+
+#viewContent{
+
+    color:#b8ffff;
+
+    line-height:1.8;
+
+    font-size:16px;
+
+    white-space:pre-wrap;
+}
+
+.hudInfo{
+    color:#00eaff;
+    font-size:12px;
+    letter-spacing:2px;
+    opacity:.7;
+    margin-bottom:25px;
+    border-bottom:1px solid rgba(0,234,255,.4);
+    padding-bottom:10px;
+}
+
+@keyframes neonPulse{
+    0%{
+        opacity:1;
+        text-shadow:
+        0 0 10px #00eaff,
+        0 0 20px #00eaff,
+        0 0 40px #00eaff;
+    }
+
+    50%{
+        opacity:.75;
+        text-shadow:
+        0 0 5px #00eaff,
+        0 0 10px #00eaff;
+    }
+
+    100%{
+        opacity:1;
+        text-shadow:
+        0 0 10px #00eaff,
+        0 0 20px #00eaff,
+        0 0 40px #00eaff;
+    }
+}
     
 </style>
 </head>
@@ -470,6 +560,10 @@ body::after{
     <div class="systemStatus">
 SYSTEM ONLINE
 </div>
+
+<div class="hudInfo">
+NODE: BPS-01  /  ACCESS LEVEL: PRIVATE  /  MODE: ARCHIVE
+</div>    
     
 <div id="homePage">
 
