@@ -969,7 +969,7 @@ post.updated
             openPost(post.id);
         };
 
-        list.prepend(div);
+        list.appendChild(div);
     });
 
     document.getElementById("totalPosts").innerText =
@@ -1020,81 +1020,34 @@ function openPost(id){
     }
 }
 
-    document.getElementById("viewBox").style.display =
-    "block";
-
-    document.getElementById("viewTitle").innerText =
-    posts[index].title;
-
-    document.getElementById("viewContent").innerText =
-    posts[index].content;
-
-document.getElementById("dateInfo").innerHTML =
-
-"작성일<br>" +
-
-posts[index].created +
-
-"<br><br>" +
-
-"최종수정<br>" +
-
-posts[index].updated;
-
-
-document.getElementById("titleInput").value =
-posts[index].title;
-
-document.getElementById("contentInput").value =
-posts[index].content;
-
-const favoriteBtn =
-document.getElementById("favoriteBtn");
-
-if(posts[index].favorite){
-
-    favoriteBtn.innerText = "★";
-
-    favoriteBtn.style.color = "#ffd700";
-
-}else{
-
-    favoriteBtn.innerText = "☆";
-
-    favoriteBtn.style.color = "white";
-}
-
-}
-
 function editPost(){
 
     if(currentPostId === null){
-    return;
-}
+        return;
+    }
 
-const post = posts.find(p => p.id === currentPostId);
+    const post = posts.find(p => p.id === currentPostId);
 
-if(!post){
-    return;
-}
+    if(!post){
+        return;
+    }
 
     post.title =
     document.getElementById("titleInput").value;
 
-    posts[currentPost].content =
+    post.content =
     document.getElementById("contentInput").value;
 
-const now = new Date();
+    const now = new Date();
 
-posts[currentPost].updated =
+    post.updated =
+    now.getFullYear() + "-" +
+    String(now.getMonth()+1).padStart(2,"0") + "-" +
+    String(now.getDate()).padStart(2,"0") + " " +
+    String(now.getHours()).padStart(2,"0") + ":" +
+    String(now.getMinutes()).padStart(2,"0");
 
-now.getFullYear() + "-" +
-String(now.getMonth()+1).padStart(2,"0") + "-" +
-String(now.getDate()).padStart(2,"0") + " " +
-String(now.getHours()).padStart(2,"0") + ":" +
-String(now.getMinutes()).padStart(2,"0");
-
-posts[currentPost].edited = true;
+    post.edited = true;
 
     savePosts();
 
@@ -1104,7 +1057,6 @@ posts[currentPost].edited = true;
 
     alert("수정 완료");
 }
-
 function toggleFavorite(){
 
     if(currentPostId === null){
