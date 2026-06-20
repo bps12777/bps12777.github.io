@@ -8,7 +8,25 @@
 
 body{
     margin:0;
-    background:#02070a;
+    background:
+
+linear-gradient(
+rgba(0,234,255,.05) 1px,
+transparent 1px
+),
+
+linear-gradient(
+90deg,
+rgba(0,234,255,.05) 1px,
+transparent 1px
+),
+
+#02070a;
+
+background-size:
+40px 40px,
+40px 40px,
+auto;
     color:#00eaff;
 
     font-family:
@@ -155,6 +173,8 @@ textarea{
 
 .post{
 
+    overflow:hidden;
+    
     border:1px solid #00eaff;
 
     background:#041018;
@@ -548,6 +568,53 @@ body::after{
         0 0 40px #00eaff;
     }
 }
+
+.post::before{
+
+    content:"";
+
+    position:absolute;
+
+    top:0;
+
+    left:0;
+
+    width:4px;
+
+    height:100%;
+
+    background:#00eaff;
+
+    box-shadow:
+    0 0 10px #00eaff;
+}
+
+.liveDot{
+
+    display:inline-block;
+
+    width:10px;
+
+    height:10px;
+
+    border-radius:50%;
+
+    background:#00ff66;
+
+    margin-left:10px;
+
+    box-shadow:
+    0 0 10px #00ff66;
+
+    animation:blinkDot 1s infinite;
+}
+
+@keyframes blinkDot{
+
+    50%{
+        opacity:.3;
+    }
+}
     
 </style>
 </head>
@@ -598,7 +665,7 @@ TOTAL FILES : 0
 
     <span class="listIcon">■</span>
 
-    LIST
+    LIST <span class="liveDot"></span>
 
 </div>
 
