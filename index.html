@@ -847,7 +847,7 @@ PURGE
 
 let posts = [];
 
-let currentPost = -1;
+let currentPostId = null;
 
 function enterSystem(){
 
@@ -894,7 +894,9 @@ posts.push({
 
     edited:false,
 
-    favorite:false
+    favorite:false,
+
+    id: Date.now()
 });
 
     savePosts();
@@ -914,17 +916,16 @@ function renderPosts(){
 
     list.innerHTML = "";
 
-    posts.sort((a,b)=>{
+    const sortedPosts = [...posts].sort((a,b)=>{
 
-    if(a.favorite === b.favorite){
-
-        return 0;
+    if(a.favorite !== b.favorite){
+        return b.favorite - a.favorite;
     }
 
-    return a.favorite ? -1 : 1;
+    return b.id - a.id;
 });
 
-    posts.forEach((post,index)=>{
+    sortedPosts.forEach((post)=>{
 
         const div =
         document.createElement("div");
@@ -965,7 +966,7 @@ post.updated
 
                 div.onclick = function(){
 
-            openPost(index);
+            openPost(post.id);
         };
 
         list.prepend(div);
@@ -975,9 +976,49 @@ post.updated
     "TOTAL FILES : " + posts.length;
 }
 
-function openPost(index){
+function openPost(id){
 
-    currentPost = index;
+    currentPostId = id;
+
+    const post = posts.find(p => p.id === id);
+
+    if(!post){
+        return;
+    }
+
+    document.getElementById("viewBox").style.display =
+    "block";
+
+    document.getElementById("viewTitle").innerText =
+    post.title;
+
+    document.getElementById("viewContent").innerText =
+    post.content;
+
+    document.getElementById("dateInfo").innerHTML =
+    "작성일<br>" +
+    post.created +
+    "<br><br>" +
+    "최종수정<br>" +
+    post.updated;
+
+    document.getElementById("titleInput").value =
+    post.title;
+
+    document.getElementById("contentInput").value =
+    post.content;
+
+    const favoriteBtn =
+    document.getElementById("favoriteBtn");
+
+    if(post.favorite){
+        favoriteBtn.innerText = "★";
+        favoriteBtn.style.color = "#ffd700";
+    }else{
+        favoriteBtn.innerText = "☆";
+        favoriteBtn.style.color = "white";
+    }
+}
 
     document.getElementById("viewBox").style.display =
     "block";
@@ -1027,12 +1068,17 @@ if(posts[index].favorite){
 
 function editPost(){
 
-    if(currentPost < 0){
+    if(currentPostId === null){
+    return;
+}
 
-        return;
-    }
+const post = posts.find(p => p.id === currentPostId);
 
-    posts[currentPost].title =
+if(!post){
+    return;
+}
+
+    post.title =
     document.getElementById("titleInput").value;
 
     posts[currentPost].content =
@@ -1054,35 +1100,39 @@ posts[currentPost].edited = true;
 
     renderPosts();
 
-    openPost(currentPost);
+    openPost(currentPostId);
 
     alert("수정 완료");
 }
 
 function toggleFavorite(){
 
-    if(currentPost < 0){
+    if(currentPostId === null){
         return;
     }
 
-    posts[currentPost].favorite =
-    !posts[currentPost].favorite;
+    const post = posts.find(p => p.id === currentPostId);
+
+    if(!post){
+        return;
+    }
+
+    post.favorite = !post.favorite;
 
     savePosts();
 
     renderPosts();
 
-    openPost(currentPost);
+    openPost(currentPostId);
 }
 
 function deletePost(){
 
-    if(currentPost < 0){
-
+    if(currentPostId === null){
         return;
     }
 
-    posts.splice(currentPost,1);
+    posts = posts.filter(p => p.id !== currentPostId);
 
     savePosts();
 
@@ -1090,6 +1140,8 @@ function deletePost(){
 
     document.getElementById("viewBox").style.display =
     "none";
+
+    currentPostId = null;
 }
 
 function savePosts(){
@@ -1109,6 +1161,17 @@ function loadPosts(){
 
         posts =
         JSON.parse(saved);
+
+ posts.forEach((post,index)=>{
+
+    if(!post.id){
+        post.id = Date.now() + index;
+    }
+
+    if(post.favorite === undefined){
+        post.favorite = false;
+    }
+});
 
         renderPosts();
     }
