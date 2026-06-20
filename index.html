@@ -667,6 +667,42 @@ body::after{
     gap:10px;
 }
     
+.actionBar{
+
+    display:flex;
+
+    gap:15px;
+
+    margin-top:20px;
+
+    margin-bottom:20px;
+
+    align-items:center;
+}
+
+#searchInput{
+
+    flex:1;
+
+    height:58px;
+
+    background:#000814;
+
+    color:#00eaff;
+
+    border:1px solid #00eaff;
+
+    padding-left:20px;
+
+    font-size:16px;
+
+    box-sizing:border-box;
+
+    box-shadow:
+    inset 0 0 10px rgba(0,234,255,.3),
+    0 0 10px rgba(0,234,255,.5);
+}
+
 </style>
 </head>
 
@@ -740,9 +776,18 @@ placeholder="WRITE ARCHIVE DATA..."></textarea>
 
 <br><br>
 
+<div class="actionBar">
+
 <button onclick="addPost()">
 SAVE LOG
 </button>
+
+<input
+id="searchInput"
+placeholder="SEARCH FILE..."
+onkeyup="searchPosts()">
+
+</div>
 
 <div id="postList"></div>
 
@@ -994,6 +1039,37 @@ function loadPosts(){
 }
 
 loadPosts();
+
+function searchPosts(){
+
+    const keyword =
+
+    document
+    .getElementById("searchInput")
+    .value
+    .toLowerCase();
+
+    const cards =
+
+    document.querySelectorAll(".post");
+
+    cards.forEach(card=>{
+
+        if(
+            card.innerText
+            .toLowerCase()
+            .includes(keyword)
+        ){
+
+            card.style.display = "block";
+
+        }else{
+
+            card.style.display = "none";
+        }
+
+    });
+}
 
 function updateClock(){
 
