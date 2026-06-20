@@ -615,6 +615,15 @@ body::after{
         opacity:.3;
     }
 }
+
+.clockBox{
+    text-align:right;
+    color:#00eaff;
+    font-size:13px;
+    letter-spacing:2px;
+    margin-bottom:10px;
+    text-shadow:0 0 10px #00eaff;
+}
     
 </style>
 </head>
@@ -627,6 +636,10 @@ body::after{
     <div class="systemStatus">
 SYSTEM ONLINE
 </div>
+
+<div id="clock" class="clockBox">
+0000-00-00 00:00:00
+</div>    
 
 <div class="hudInfo">
 NODE: BPS-01  /  ACCESS LEVEL: PRIVATE  /  MODE: ARCHIVE
@@ -936,6 +949,25 @@ function loadPosts(){
 }
 
 loadPosts();
+
+function updateClock(){
+
+    const now = new Date();
+
+    const time =
+    now.getFullYear() + "-" +
+    String(now.getMonth()+1).padStart(2,"0") + "-" +
+    String(now.getDate()).padStart(2,"0") + " " +
+    String(now.getHours()).padStart(2,"0") + ":" +
+    String(now.getMinutes()).padStart(2,"0") + ":" +
+    String(now.getSeconds()).padStart(2,"0");
+
+    document.getElementById("clock").innerText = time;
+}
+
+setInterval(updateClock,1000);
+
+updateClock();    
 
 </script>
 </div>
