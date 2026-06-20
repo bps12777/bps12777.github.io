@@ -418,6 +418,46 @@ textarea{
 
     font-size:14px;
 }
+
+body::after{
+    content:"";
+
+    position:fixed;
+
+    top:0;
+    left:0;
+
+    width:100%;
+    height:100%;
+
+    pointer-events:none;
+
+    background:
+    repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.03) 0px,
+        rgba(255,255,255,0.03) 1px,
+        transparent 1px,
+        transparent 4px
+    );
+
+    z-index:999;
+}
+
+.systemStatus{
+    text-align:right;
+
+    color:#00ff88;
+
+    font-size:13px;
+
+    letter-spacing:2px;
+
+    margin-bottom:10px;
+
+    text-shadow:
+    0 0 10px #00ff88;
+}
     
 </style>
 </head>
@@ -427,6 +467,9 @@ textarea{
 <!-- 첫 화면 -->
 
 <div class="terminalFrame">
+    <div class="systemStatus">
+SYSTEM ONLINE
+</div>
     
 <div id="homePage">
 
