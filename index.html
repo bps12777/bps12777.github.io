@@ -713,6 +713,13 @@ body::after{
     0 0 10px rgba(0,234,255,.5);
 }
 
+.favoritePost{
+    border:1px solid #66ffff;
+
+    box-shadow:
+    0 0 12px rgba(102,255,255,.8);
+}
+
 </style>
 </head>
 
@@ -803,6 +810,22 @@ onkeyup="searchPosts()">
 
 <h2 id="viewTitle"></h2>
 
+<button
+id="favoriteBtn"
+onclick="toggleFavorite()"
+style="
+float:right;
+width:45px;
+height:45px;
+font-size:22px;
+padding:0;
+background:#021018;
+border:1px solid #00eaff;
+color:white;
+">
+☆
+</button>
+
 <div id="dateInfo" class="datePanel">
 </div>
 
@@ -869,7 +892,9 @@ posts.push({
 
     updated:dateString,
 
-    edited:false
+    edited:false,
+
+    favorite:false
 });
 
     savePosts();
@@ -889,12 +914,22 @@ function renderPosts(){
 
     list.innerHTML = "";
 
+    posts.sort((a,b)=>{
+
+    if(a.favorite === b.favorite){
+
+        return 0;
+    }
+
+    return a.favorite ? -1 : 1;
+});
+
     posts.forEach((post,index)=>{
 
         const div =
         document.createElement("div");
 
-        div.className = "post";
+        div.className = post.favorite ? "post favoritePost" : "post";
 
         div.innerHTML =
 
@@ -904,7 +939,7 @@ function renderPosts(){
 
 "<span style='font-size:18px;font-weight:bold;'>"
 
-+ post.title +
++ (post.favorite ? "▣ " : "") + post.title +
 
 "</span>"
 
@@ -971,6 +1006,23 @@ posts[index].title;
 
 document.getElementById("contentInput").value =
 posts[index].content;
+
+const favoriteBtn =
+document.getElementById("favoriteBtn");
+
+if(posts[index].favorite){
+
+    favoriteBtn.innerText = "★";
+
+    favoriteBtn.style.color = "#ffd700";
+
+}else{
+
+    favoriteBtn.innerText = "☆";
+
+    favoriteBtn.style.color = "white";
+}
+
 }
 
 function editPost(){
@@ -1005,6 +1057,22 @@ posts[currentPost].edited = true;
     openPost(currentPost);
 
     alert("수정 완료");
+}
+
+function toggleFavorite(){
+
+    if(currentPost < 0){
+        return;
+    }
+
+    posts[currentPost].favorite =
+    !posts[currentPost].favorite;
+
+    savePosts();
+
+    renderPosts();
+
+    openPost(currentPost);
 }
 
 function deletePost(){
