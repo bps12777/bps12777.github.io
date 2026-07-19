@@ -1,71 +1,76 @@
 <!DOCTYPE html>
 <html>
-<head> <!--웹페이지에 보이지않는 것-->
-  <title>BPS AI</title> 
-<style> /*css 꾸미기*/
+  
+<head>
+  <title>BUPSENT</title>
+<style>
   body{
-    background:black;
-    color:white;
-      }
-  #main{
-    display:flex;
-    height:100vh;
-    flex-direction:column;
-    justify-content:center; 
-    align-items:center;
-    border:3px solid cyan;
-    border-radius:25px;
+   background:black;
+   color:gray;
+  }
+  #system{
+   display:flex;
+   flex-direction:column;
+   height:100vh;
+   justify-content:center;
+   align-items:center;
+  }
+  #searchbox{
+   display:flex;
+   flex-direction:row;
+   justify-content:center;
+   align-items:center;
+   gap:3px;
   }
   #title{
-    color:cyan;
-    font-size:50px;
-    /*text-align:center;텍스트정렬*/
-    margin:0px; /*top right bottom left 가능*/
-    /*display:block; 한줄전체를 사용*/
-    }
-  #subtitle{
-    margin:20px;
+   font-size:50px;
+   color:darkturquoise;
+   text-shadow:0px 0px 50px cyan;
   }
-  .button{
-    background:black;
-    color:white;
-    text-align:center;
-    padding:10px;
-    /*display:inline; 필요한부분만 사용*/
-    width:120px;
-    height:50px;
-    border:3px solid cyan; 
-    /*solid 실선 dashed 점선 dotted .선 double 두줄*/
-    border-radius:25px; /*50% 가능*/
-    box-shadow:0px 0px 10px cyan;
-    transition:0.3s;
-        }  
-  .button:hover{
-    box-shadow:0px 0px 50px cyan;
+  #search{
+   background:black;
+   color:gray;
+   width:250px;
+   padding:5px;
+   border:1px solid cyan;
+   border-radius:3px;
   }
-  #buttons{
-    display:flex;
-    flex-direction:column; /*row행 column열*/
-    /*justify-content:center;정렬*/
-    align-items:center; /* 그반대정렬*/
-     }
+  #starting-button{
+   background:black;
+   color:gray;
+   padding:5px;
+   border:1px solid cyan;
+   border-radius:3px;
+  }
 </style>
   
 </head>
 
 <body>
-  <div id="main">
-  <h1 id="title">BPS AI</h1>
-  <p id="subtitle">나만의 AI 프로젝트</p>
-  <div id="buttons">
-  <button id="main-button" class="button">Access</button>
-  <button class="button">A</button>
-  <button class="button">B</button>
-  <button class="button">C</button>
-  <button id="check-button" class="button">확인</button>
+  <div id="system">
+  <h1 id="title">BUPSENT</h1>
+  <div id="searchbox">
+  <input id="search" type="text" placeholder="Ask anything...">
+  <button id="starting-button">@</button>
   </div>
   </div>
+<script>
+  const search = document.getElementById("search");
+  const startingButton = document.getElementById("starting-button");
+  function askAI() {
+     alert(search.value);
+  }
+  startingButton.addEventListener("click", function () {
+  askAI();
+  });
+  
+  search.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+  askAI();
+    }});
 
+</script>
+  
 </body>
 
 </html>
