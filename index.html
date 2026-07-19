@@ -1,1 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head> <!--웹페이지에 보이지않는 것-->
+  <title>BPS AI</title> 
+<style> /*css 꾸미기*/
+  body{
+    background:black;
+    color:white;
+      }
+  #main{
+    display:flex;
+    height:100vh;
+    flex-direction:column;
+    justify-content:center; 
+    align-items:center;
+    border:3px solid cyan;
+    border-radius:25px;
+  }
+  #title{
+    color:cyan;
+    font-size:50px;
+    /*text-align:center;텍스트정렬*/
+    margin:0px; /*top right bottom left 가능*/
+    /*display:block; 한줄전체를 사용*/
+    }
+  #subtitle{
+    margin:20px;
+  }
+  .button{
+    background:black;
+    color:white;
+    text-align:center;
+    padding:10px;
+    /*display:inline; 필요한부분만 사용*/
+    width:120px;
+    height:50px;
+    border:3px solid cyan; 
+    /*solid 실선 dashed 점선 dotted .선 double 두줄*/
+    border-radius:25px; /*50% 가능*/
+    box-shadow:0px 0px 10px cyan;
+    transition:0.3s;
+        }  
+  .button:hover{
+    box-shadow:0px 0px 50px cyan;
+  }
+  #buttons{
+    display:flex;
+    flex-direction:column; /*row행 column열*/
+    /*justify-content:center;정렬*/
+    align-items:center; /* 그반대정렬*/
+     }
+</style>
+  
+</head>
 
+<body>
+  <div id="main">
+  <h1 id="title">BPS AI</h1>
+  <p id="subtitle">나만의 AI 프로젝트</p>
+  <div id="buttons">
+  <button id="main-button" class="button">Access</button>
+  <button class="button">A</button>
+  <button class="button">B</button>
+  <button class="button">C</button>
+  <button id="check-button" class="button">확인</button>
+  </div>
+  </div>
+
+</body>
+
+</html>
