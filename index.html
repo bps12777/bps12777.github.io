@@ -52,6 +52,9 @@
   <div id="searchbox">
   <input id="search" type="text" placeholder="Ask anything...">
   <button id="starting-button">@</button>
+  <div id="chatbox">
+    
+  </div>
   </div>
   </div>
 <script>
@@ -60,14 +63,24 @@
   function askAI() {
      alert(search.value);
   }
-  startingButton.addEventListener("click", function () {
+  startingButton.addEventListener("click", function() {
   askAI();
-  });
+    });
   
   search.addEventListener("keydown", function (event) {
     if (event.key === "Enter") {
   askAI();
     }});
+  const chatbox = document.getElementById("chatbox");
+  function askAI() {
+   if (search.value === "") {
+   return;
+   }
+  const message = document.createElement("p");
+  message.textContent = "👤 " + search.value;
+  chatbox.appendChild(message);
+  search.value = "";
+  }
 
 </script>
   
