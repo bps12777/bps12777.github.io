@@ -42,14 +42,93 @@
    border:1px solid cyan;
    border-radius:3px;
   }
-  #chatbox {
+  
+/* ===== BPS AI : NEON ORBIT ===== */
+
+#chatbox {
+  box-sizing: border-box;
   width: 350px;
   height: 300px;
-  border: 1px solid cyan;
+
+  padding: 14px;
+  margin-top: 20px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
   overflow-y: auto;
-  padding: 10px;
-  margin-top: 40px;
+  overflow-x: hidden;
+
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(0, 255, 255, 0.08),
+      transparent 65%
+    ),
+    #05090d;
+
+  border: 1px solid rgba(0, 255, 255, 0.45);
+  border-radius: 14px;
+
+  box-shadow:
+    0 0 12px rgba(0, 255, 255, 0.08),
+    inset 0 0 25px rgba(0, 255, 255, 0.035);
+
+  scrollbar-color: #087e88 #05090d;
+  scrollbar-width: thin;
+}
+
+/* 메시지 공통 디자인 */
+#chatbox p {
+  box-sizing: border-box;
+  max-width: 85%;
+  width: fit-content;
+
+  padding: 11px 14px;
+  margin: 0;
+
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+
+  animation: messageAppear 0.3s ease-out both;
+}
+
+/* 사용자 말풍선 */
+#chatbox p.user {
+  align-self: flex-end;
+
+  color: #e3ffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(0, 255, 255, 0.17),
+      rgba(0, 90, 110, 0.12)
+    );
+
+  border: 1px solid rgba(0, 255, 255, 0.65);
+  border-radius: 14px 14px 3px 14px;
+
+  box-shadow:
+    0 0 14px rgba(0, 255, 255, 0.08),
+    inset 0 0 12px rgba(0, 255, 255, 0.035);
+}
+
+/* 메시지가 나타나는 애니메이션 */
+@keyframes messageAppear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
   }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 </style>
   
 </head>
@@ -85,8 +164,9 @@
    return;
    }
   const message = document.createElement("p");
-  message.textContent = " 👤 " + search.value;
-  chatbox.prepend(message);
+message.classList.add("user");
+message.textContent = "👤 " + search.value;
+chatbox.prepend(message);
   search.value = "";
   chatbox.scrollTop = 0;
   }
