@@ -4,9 +4,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#03070c">
   <title>BUPSENT</title>
 
   <style>
+    /* =========================
+       1. 기본 설정
+    ========================= */
+
+    :root {
+      --bg: #03070c;
+      --panel: #08121b;
+      --cyan: #42f5ef;
+      --blue: #3a9cff;
+      --purple: #a78bfa;
+      --text: #e9f7ff;
+      --muted: #7f9ba9;
+      --line: rgba(66, 245, 239, 0.22);
+    }
+
     * {
       box-sizing: border-box;
     }
@@ -14,100 +30,156 @@
     body {
       margin: 0;
       min-height: 100vh;
-      padding: 30px 16px;
+      padding: 28px 16px;
 
       display: flex;
       justify-content: center;
       align-items: flex-start;
 
+      color: var(--text);
       background:
         radial-gradient(
-          circle at 50% 15%,
-          rgba(0, 206, 209, 0.09),
+          ellipse at 50% 0%,
+          rgba(58, 156, 255, 0.13),
+          transparent 48%
+        ),
+        radial-gradient(
+          ellipse at 100% 55%,
+          rgba(167, 139, 250, 0.06),
           transparent 45%
         ),
-        #020507;
+        var(--bg);
 
-      color: white;
-      font-family: Arial, "Malgun Gothic", sans-serif;
+      font-family:
+        system-ui, -apple-system, "Malgun Gothic",
+        sans-serif;
     }
 
-    /* 전체 시스템 */
+    button,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* =========================
+       2. 전체 레이아웃
+    ========================= */
+
     #system {
       width: 100%;
-      max-width: 400px;
+      max-width: 430px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
-    /* 제목 */
-    #title {
-      margin: 45px 0 8px;
+    /* =========================
+       3. 제목
+    ========================= */
 
-      color: darkturquoise;
-      font-size: 42px;
-      font-weight: 700;
-      letter-spacing: 4px;
+    #title {
+      margin: 40px 0 8px;
+
+      color: var(--cyan);
+      font-size: clamp(34px, 9vw, 43px);
+      font-weight: 800;
+      letter-spacing: 5px;
+      line-height: 1.2;
       text-align: center;
 
       text-shadow:
-        0 0 8px rgba(0, 206, 209, 0.7),
-        0 0 24px rgba(0, 206, 209, 0.25);
+        0 0 10px rgba(66, 245, 239, 0.38),
+        0 0 30px rgba(66, 245, 239, 0.12);
     }
 
-    /* 작은 부제목 */
     #subtitle {
-      margin: 0 0 32px;
+      margin: 0 0 30px;
 
-      color: #78999e;
-      font-size: 12px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 500;
       letter-spacing: 3px;
       text-align: center;
     }
 
-    /* 입력창 + 전송 버튼 */
+    /* 얇은 장식선 */
+    #accent-line {
+      width: 48px;
+      height: 2px;
+      margin: 0 0 26px;
+
+      background: linear-gradient(
+        90deg,
+        var(--blue),
+        var(--cyan),
+        var(--purple)
+      );
+
+      border-radius: 2px;
+      box-shadow: 0 0 12px rgba(66, 245, 239, 0.4);
+    }
+
+    /* =========================
+       4. 입력 영역
+    ========================= */
+
     #input-area {
       width: 100%;
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       gap: 9px;
     }
 
     #search {
       flex: 1;
       min-width: 0;
-      height: 50px;
-      padding: 0 17px;
+      min-height: 50px;
+      max-height: 120px;
+      padding: 14px 16px;
 
-      color: #eaffff;
-      background: rgba(5, 15, 21, 0.95);
+      color: var(--text);
+      background: rgba(8, 18, 27, 0.94);
 
-      border: 1px solid rgba(0, 206, 209, 0.55);
-      border-radius: 26px;
+      border: 1px solid rgba(66, 245, 239, 0.27);
+      border-radius: 17px;
       outline: none;
 
       font-size: 14px;
+      line-height: 1.55;
+
+      resize: none;
+      overflow-y: auto;
+      overflow-wrap: anywhere;
 
       box-shadow:
-        inset 0 0 12px rgba(0, 206, 209, 0.035);
+        inset 0 0 16px rgba(66, 245, 239, 0.025);
 
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition:
+        border-color 0.2s,
+        box-shadow 0.2s,
+        background 0.2s;
     }
 
     #search::placeholder {
-      color: #66858b;
+      color: #78909e;
     }
 
     #search:focus {
-      border-color: darkturquoise;
+      background: #091722;
+      border-color: rgba(66, 245, 239, 0.75);
 
       box-shadow:
-        0 0 12px rgba(0, 206, 209, 0.18),
-        inset 0 0 10px rgba(0, 206, 209, 0.04);
+        0 0 0 3px rgba(66, 245, 239, 0.055),
+        0 0 18px rgba(66, 245, 239, 0.07);
     }
 
-    /* 전송 버튼 */
+    /* =========================
+       5. 전송 버튼
+    ========================= */
+
     #starting-button {
       width: 50px;
       height: 50px;
@@ -118,25 +190,36 @@
       justify-content: center;
       align-items: center;
 
-      color: darkturquoise;
-      background: linear-gradient(145deg, #102a31, #040b10);
+      color: var(--cyan);
+      background: linear-gradient(
+        145deg,
+        #102d39,
+        #09121e
+      );
 
-      border: 1px solid rgba(0, 255, 255, 0.7);
-      border-radius: 50%;
+      border: 1px solid rgba(66, 245, 239, 0.58);
+      border-radius: 16px;
 
-      box-shadow: 0 0 13px rgba(0, 255, 255, 0.12);
+      box-shadow:
+        0 0 14px rgba(66, 245, 239, 0.09),
+        inset 0 0 10px rgba(66, 245, 239, 0.04);
 
       cursor: pointer;
-      transition: 0.2s;
+
+      transition:
+        transform 0.18s,
+        border-color 0.18s,
+        box-shadow 0.18s;
     }
 
     #starting-button:hover {
-      background: #10343b;
-      box-shadow: 0 0 19px rgba(0, 255, 255, 0.25);
+      border-color: var(--cyan);
+      box-shadow:
+        0 0 18px rgba(66, 245, 239, 0.19);
     }
 
     #starting-button:active {
-      transform: scale(0.93);
+      transform: scale(0.94);
     }
 
     #starting-button svg {
@@ -144,11 +227,14 @@
       height: 21px;
     }
 
-    /* 채팅창 */
+    /* =========================
+       6. 채팅창
+    ========================= */
+
     #chatbox {
       width: 100%;
-      height: 340px;
-      margin-top: 22px;
+      height: 350px;
+      margin-top: 18px;
       padding: 15px;
 
       display: flex;
@@ -162,58 +248,74 @@
       overscroll-behavior: contain;
 
       scrollbar-width: thin;
-      scrollbar-color: #087d83 #050a0e;
+      scrollbar-color: #235d68 transparent;
 
       background:
         radial-gradient(
           ellipse at top left,
-          rgba(0, 206, 209, 0.07),
-          transparent 65%
+          rgba(66, 245, 239, 0.055),
+          transparent 60%
         ),
-        linear-gradient(160deg, #08131a, #03070a);
+        linear-gradient(
+          155deg,
+          rgba(9, 21, 32, 0.98),
+          rgba(4, 9, 15, 0.99)
+        );
 
-      border: 1px solid rgba(0, 255, 255, 0.48);
-      border-radius: 17px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
 
       box-shadow:
-        0 0 12px rgba(0, 255, 255, 0.09),
-        inset 0 0 22px rgba(0, 206, 209, 0.035);
+        0 0 22px rgba(66, 245, 239, 0.045),
+        inset 0 0 24px rgba(66, 245, 239, 0.018);
     }
 
-    /* 시작 안내 */
+    /* =========================
+       7. 시작 화면
+    ========================= */
+
     #welcome {
       width: 100%;
       margin: auto 0;
 
-      color: #55777e;
+      color: var(--muted);
       font-size: 12px;
-      line-height: 1.9;
-      text-align: center;
+      line-height: 2;
       letter-spacing: 1px;
+      text-align: center;
     }
 
     #welcome span {
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 9px;
 
-      color: darkturquoise;
-      font-size: 24px;
+      color: var(--cyan);
+      font-size: 26px;
 
-      text-shadow: 0 0 12px rgba(0, 206, 209, 0.4);
+      text-shadow:
+        0 0 14px rgba(66, 245, 239, 0.4);
     }
 
-    /* 공통 메시지 */
-    #chatbox p.message {
-      position: relative;
+    #welcome strong {
+      color: #c3dce8;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+    }
 
+    /* =========================
+       8. 공통 말풍선
+    ========================= */
+
+    #chatbox p.message {
       width: fit-content;
       max-width: 88%;
       margin: 0;
       padding: 10px 14px;
 
-      color: #e8ffff;
+      color: var(--text);
       font-size: 14px;
-      line-height: 1.65;
+      line-height: 1.7;
 
       white-space: pre-wrap;
       overflow-wrap: anywhere;
@@ -222,41 +324,45 @@
       animation: messageAppear 0.22s ease-out;
     }
 
-    /* 사용자 메시지 */
+    /* 사용자 말풍선 */
     #chatbox p.user {
       align-self: flex-end;
 
       background: linear-gradient(
         135deg,
-        rgba(0, 206, 209, 0.23),
-        rgba(0, 95, 110, 0.17)
+        rgba(29, 135, 160, 0.28),
+        rgba(30, 75, 116, 0.23)
       );
 
-      border: 1px solid rgba(0, 255, 255, 0.48);
-      border-radius: 15px 15px 3px 15px;
+      border: 1px solid rgba(66, 245, 239, 0.38);
+      border-radius: 15px 15px 4px 15px;
 
-      box-shadow: 0 0 12px rgba(0, 255, 255, 0.045);
+      box-shadow:
+        0 0 13px rgba(66, 245, 239, 0.035);
     }
 
-    /* AI 메시지 */
+    /* AI 말풍선 */
     #chatbox p.ai {
       align-self: flex-start;
 
       background: linear-gradient(
         135deg,
-        rgba(10, 39, 48, 0.96),
-        rgba(4, 14, 21, 0.98)
+        rgba(22, 34, 54, 0.98),
+        rgba(12, 20, 33, 0.98)
       );
 
-      border: 1px solid rgba(0, 206, 209, 0.4);
-      border-radius: 15px 15px 15px 3px;
+      border: 1px solid rgba(167, 139, 250, 0.36);
+      border-radius: 15px 15px 15px 4px;
 
       box-shadow:
-        inset 2px 0 0 rgba(0, 255, 255, 0.13),
-        0 0 12px rgba(0, 206, 209, 0.045);
+        inset 2px 0 0 rgba(167, 139, 250, 0.22),
+        0 0 13px rgba(167, 139, 250, 0.035);
     }
 
-    /* 메시지 등장 애니메이션 */
+    /* =========================
+       9. 애니메이션
+    ========================= */
+
     @keyframes messageAppear {
       from {
         opacity: 0;
@@ -269,23 +375,26 @@
       }
     }
 
-    /* 모바일 화면 */
+    /* =========================
+       10. 작은 화면 대응
+    ========================= */
+
     @media (max-width: 400px) {
       body {
-        padding: 20px 14px;
+        padding: 20px 13px;
       }
 
       #title {
-        margin-top: 35px;
-        font-size: 36px;
+        margin-top: 32px;
+        letter-spacing: 4px;
       }
 
       #subtitle {
-        margin-bottom: 27px;
+        margin-bottom: 25px;
       }
 
       #chatbox {
-        height: 320px;
+        height: 330px;
         padding: 12px;
       }
 
@@ -295,13 +404,13 @@
       }
     }
 
-    /* 애니메이션 최소화 설정 존중 */
+    /* 움직임 줄이기 설정 */
     @media (prefers-reduced-motion: reduce) {
       *,
       *::before,
       *::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
+        animation: none !important;
+        transition: none !important;
       }
     }
   </style>
@@ -313,15 +422,16 @@
 
     <h1 id="title">BUPSENT</h1>
     <p id="subtitle">NEURAL INTERFACE</p>
+    <div id="accent-line"></div>
 
     <div id="input-area">
 
-      <input
-        type="text"
+      <textarea
         id="search"
+        rows="1"
         placeholder="메시지를 입력하세요..."
-        autocomplete="off"
-      >
+        aria-label="메시지 입력"
+      ></textarea>
 
       <button
         type="button"
@@ -348,7 +458,8 @@
 
       <div id="welcome">
         <span>◈</span>
-        BUPSENT INTERFACE<br>
+        <strong>BUPSENT INTERFACE</strong>
+        <br>
         SYSTEM READY
       </div>
 
@@ -357,41 +468,68 @@
   </main>
 
   <script>
+    /* =========================
+       1. HTML 요소 연결
+    ========================= */
+
     const search = document.getElementById("search");
     const button = document.getElementById("starting-button");
     const chatbox = document.getElementById("chatbox");
     const welcome = document.getElementById("welcome");
 
-    /* 메시지 생성 */
+    /* =========================
+       2. 메시지 생성
+    ========================= */
+
     function addMessage(text, type) {
       const message = document.createElement("p");
 
       message.classList.add("message", type);
       message.textContent = text;
 
+      /* 새 메시지를 맨 위에 추가 */
       chatbox.prepend(message);
 
       return message;
     }
 
-    /* 메시지 전송 */
+    /* =========================
+       3. 입력창 크기 조절
+    ========================= */
+
+    function resizeInput() {
+      search.style.height = "auto";
+
+      const newHeight = Math.min(search.scrollHeight, 120);
+      search.style.height = newHeight + "px";
+      search.style.overflowY =
+        search.scrollHeight > 120 ? "auto" : "hidden";
+    }
+
+    search.addEventListener("input", resizeInput);
+
+    /* =========================
+       4. 메시지 전송
+    ========================= */
+
     function askAI() {
       const text = search.value.trim();
 
+      /* 빈 메시지는 보내지 않음 */
       if (text === "") {
         search.focus();
         return;
       }
 
-      /* 첫 메시지를 보낼 때 시작 안내 제거 */
-      if (welcome && welcome.isConnected) {
+      /* 첫 메시지 전송 시 시작 안내 제거 */
+      if (welcome.isConnected) {
         welcome.remove();
       }
 
-      /* 사용자 메시지를 채팅창 맨 위에 표시 */
+      /* 사용자 메시지 표시 */
       addMessage(text, "user");
 
-      /* 기존 BPS 테스트 응답 유지 */
+      /* 기존 BPS 응답 기능 유지 */
       if (text.toLowerCase() === "bps") {
         addMessage(
           "BPS AI 시스템에 접속했습니다.",
@@ -401,18 +539,26 @@
 
       /* 입력창 초기화 */
       search.value = "";
+      resizeInput();
       search.focus();
 
       /* 최신 메시지가 있는 맨 위로 이동 */
       chatbox.scrollTop = 0;
     }
 
-    /* 전송 버튼 클릭 */
+    /* =========================
+       5. 버튼 및 키보드 이벤트
+    ========================= */
+
     button.addEventListener("click", askAI);
 
-    /* Enter 키로 전송 */
     search.addEventListener("keydown", function(event) {
-      if (event.key === "Enter" && !event.isComposing) {
+      /* Enter는 전송, Shift + Enter는 줄바꿈 */
+      if (
+        event.key === "Enter" &&
+        !event.shiftKey &&
+        !event.isComposing
+      ) {
         event.preventDefault();
         askAI();
       }
