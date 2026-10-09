@@ -187,31 +187,28 @@
 
 /* ===== BPS AI 홀로그램 말풍선 ===== */
 
+
+/* AI 말풍선 - 사용자 디자인과 대칭 */
 #chatbox p.ai {
   align-self: flex-start;
   position: relative;
 
   color: #C9FBFF;
+  background: linear-gradient(
+    225deg,
+    rgba(0, 255, 255, 0.17),
+    rgba(0, 90, 110, 0.12)
+  );
 
-  background:
-    linear-gradient(
-      135deg,
-      rgba(0, 255, 255, 0.09),
-      rgba(8, 22, 35, 0.95) 65%
-    );
-
-  border: 1px solid rgba(0, 210, 230, 0.45);
-
-  border-radius: 3px 14px 14px 14px;
+  border: 1px solid rgba(0, 255, 255, 0.65);
+  border-radius: 14px 14px 14px 3px;
 
   box-shadow:
-    inset 3px 0 0 rgba(0, 255, 255, 0.65),
-    0 0 14px rgba(0, 255, 255, 0.05);
-
-  padding-left: 17px;
+    0 0 14px rgba(0, 255, 255, 0.08),
+    inset 0 0 12px rgba(0, 255, 255, 0.035);
 }
 
-/* AI 패널 위쪽의 빛나는 선 */
+/* 왼쪽 위 빛나는 선 */
 #chatbox p.ai::before {
   content: "";
   position: absolute;
@@ -225,6 +222,7 @@
   background: cyan;
   box-shadow: 0 0 8px cyan;
 }
+
 
 
 /* 메시지가 나타나는 애니메이션 */
@@ -287,10 +285,40 @@
     }});
   const chatbox = document.getElementById("chatbox");
   
+
 function askAI() {
-  if (search.value.trim() === "") {
+  // 입력한 글 가져오기
+  const text = search.value.trim();
+
+  // 아무것도 입력하지 않았다면 종료
+  if (text === "") {
     return;
   }
+
+  // 사용자 메시지 만들기
+  const message = document.createElement("p");
+  message.classList.add("user");
+  message.textContent = text;
+
+  chatbox.prepend(message);
+
+  // bps라고 입력했을 때만 AI 답변
+  if (text.toLowerCase() === "bps") {
+    const reply = document.createElement("p");
+
+    reply.classList.add("ai");
+    reply.textContent = "BPS AI 시스템에 접속했습니다.";
+
+    chatbox.prepend(reply);
+  }
+
+  // 입력창 비우기
+  search.value = "";
+
+  // 채팅창 스크롤 초기화
+  chatbox.scrollTop = 0;
+}
+
 
   // 사용자 메시지
   const message = document.createElement("p");
@@ -299,10 +327,19 @@ function askAI() {
   chatbox.prepend(message);
 
   // 임시 AI 메시지
+  
+const text = search.value.trim();
+
+// bps라고 입력했을 때만 답변
+if (text.toLowerCase() === "bps") {
   const reply = document.createElement("p");
+
   reply.classList.add("ai");
   reply.textContent = "BPS AI 시스템에 접속했습니다.";
+
   chatbox.prepend(reply);
+}
+
 
   search.value = "";
   chatbox.scrollTop = 0;
