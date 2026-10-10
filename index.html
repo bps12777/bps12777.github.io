@@ -404,14 +404,35 @@ function getWebsiteURL(text) {
     } catch (error) { return null; }
 }
 function renderAIResponse(container, text) {
-    const url = getWebsiteURL(text);
-    if (url) {
-        const link = document.createElement("a");
-        link.className = "ai-link"; link.href = url; link.target = "_blank";
-        link.rel = "noopener noreferrer"; link.textContent = text.trim();
-        container.appendChild(link); return;
+    // 답변 안의 URL도 자동으로 클릭 가능한 링크로 표시한다.
+    const urlPattern = /https?:\/\/[^\s<>"']+|(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)+(?:\/[^\s<>"']*)?/gi;
+    let lastIndex = 0;
+    let match;
+    while ((match = urlPattern.exec(text)) !== null) {
+        let raw = match[0];
+        let trailing = "";
+        while (/[.,!?;:。？！、）》】]$/.test(raw)) {
+            trailing = raw.slice(-1) + trailing;
+            raw = raw.slice(0, -1);
+        }
+        if (!raw) continue;
+        container.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+        const href = getWebsiteURL(raw);
+        if (href) {
+            const link = document.createElement("a");
+            link.className = "ai-link";
+            link.href = href;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.textContent = raw;
+            container.appendChild(link);
+        } else {
+            container.appendChild(document.createTextNode(raw));
+        }
+        container.appendChild(document.createTextNode(trailing));
+        lastIndex = match.index + match[0].length;
     }
-    container.textContent = text;
+    container.appendChild(document.createTextNode(text.slice(lastIndex)));
 }
 
 /* 속성 표현을 통일해 자연어 질문의 간단한 변형을 처리한다. */
@@ -421,8 +442,15 @@ const predicateGroups = {
     "정의": ["정의", "뜻", "의미", "무엇을 의미", "설명"],
     "주소": ["주소", "사이트", "홈페이지", "url", "링크", "웹사이트"]
 };
-function findPredicateInQuestion(question) {
+function findPredicateInQuestion(question, records = getStoredData()) {
     const q = normalize(question);
+    // 데이터 창에 직접 저장한 ATTRIBUTE를 먼저 인식한다.
+    const storedPredicates = [...new Set(records.map(r => String(r.predicate || "").trim()).filter(Boolean))]
+        .sort((a, b) => normalize(b).length - normalize(a).length);
+    for (const predicate of storedPredicates) {
+        const normalized = normalize(predicate);
+        if (normalized && (q === normalized || q.includes(normalized))) return predicate;
+    }
     for (const [canonical, variants] of Object.entries(predicateGroups)) {
         if (variants.some(variant => q.includes(normalize(variant)))) return canonical;
     }
@@ -432,8 +460,8 @@ function findSavedFacts(userText) {
     const records = getStoredData();
     const q = normalize(userText);
     if (!q) return [];
-    const predicate = findPredicateInQuestion(userText);
     const candidates = records.filter(r => r.type === "knowledge" || r.subject || r.predicate);
+    const predicate = findPredicateInQuestion(userText, candidates);
     const exactSubject = candidates.filter(r => {
         const names = [r.subject, r.content, ...(r.aliases || [])].map(normalize).filter(Boolean);
         return names.some(name => q === name || q.startsWith(name + " ") || q.includes(name));
@@ -480,8 +508,17 @@ function getAIResponse(userText) {
         return "이 기능은 아직 실시간 외부 데이터와 연결되지 않았습니다. 현재 값은 확인하거나 만들어내지 않겠습니다.\n추후 유튜브/주식 API와 서버를 연결해야 합니다.";
     }
     const facts = findSavedFacts(input);
-    const answer = formatFacts(facts);
-    if (answer) return answer;
+    if (facts.length) {
+        const predicate = findPredicateInQuestion(input, facts);
+        if (predicate) {
+            const exactMatches = facts.filter(r => normalize(r.predicate) === normalize(predicate) ||
+                (predicateGroups[predicate] || []).some(v => normalize(r.predicate) === normalize(v)) ||
+                (!r.predicate && predicate === "주소" && getWebsiteURL(r.object || r.meaning)));
+            if (exactMatches.length) return exactMatches.map(r => r.object || r.meaning || "").filter(Boolean).join("\n");
+        }
+        const answer = formatFacts(facts);
+        if (answer) return answer;
+    }
     if (normalize(input) === "bps" || normalize(input) === "bps ai" || normalize(input) === "bupsent") return "BPS AI 시스템에 접속했습니다.\n현재는 저장된 지식을 기반으로 검색하고 답변합니다.";
     return "아직 저장된 답변이 없습니다.";
 }
