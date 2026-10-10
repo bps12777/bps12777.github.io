@@ -1,1565 +1,927 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#03070c">
-  <title>BUPSENT</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BPS AI</title>
 
-  <style>
-    /* =========================
-       1. 기본 설정
-    ========================= */
+<style>
+:root {
+    --bg: #03070c;
+    --panel: #08121b;
+    --cyan: #42f5ef;
+    --blue: #3a9cff;
+    --purple: #a78bfa;
+    --text: #e9f7ff;
+    --muted: #7f9ba9;
+    --line: rgba(66, 245, 239, 0.22);
+}
 
-    :root {
-      --bg: #03070c;
-      --panel: #08121b;
-      --cyan: #42f5ef;
-      --blue: #3a9cff;
-      --purple: #a78bfa;
-      --text: #e9f7ff;
-      --muted: #7f9ba9;
-      --line: rgba(66, 245, 239, 0.22);
-    }
+* {
+    box-sizing: border-box;
+}
 
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      padding: 28px 16px;
-
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-
-      color: var(--text);
-      background:
-        radial-gradient(
-          ellipse at 50% 0%,
-          rgba(58, 156, 255, 0.13),
-          transparent 48%
-        ),
-        radial-gradient(
-          ellipse at 100% 55%,
-          rgba(167, 139, 250, 0.06),
-          transparent 45%
-        ),
+body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 28px 16px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background:
+        radial-gradient(circle at 50% 10%, rgba(58,156,255,0.10), transparent 35%),
+        radial-gradient(circle at 50% 50%, rgba(66,245,239,0.05), transparent 60%),
         var(--bg);
+    color: var(--text);
+    font-family: Arial, sans-serif;
+}
 
-      font-family:
-        system-ui, -apple-system, "Malgun Gothic",
-        sans-serif;
+#system {
+    width: 100%;
+    max-width: 430px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    margin: 40px 0 8px;
+    color: var(--cyan);
+    font-size: clamp(34px, 10vw, 43px);
+    letter-spacing: 5px;
+    text-align: center;
+    text-shadow: 0 0 18px rgba(66,245,239,0.45);
+}
+
+#subtitle {
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 4px;
+}
+
+#accent-line {
+    width: 48px;
+    height: 2px;
+    margin: 20px 0 28px;
+    background: linear-gradient(90deg, var(--cyan), var(--blue));
+    box-shadow: 0 0 12px var(--cyan);
+}
+
+/* 채팅 입력 영역 */
+
+#input-area {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+#search {
+    flex: 1;
+    min-width: 0;
+    min-height: 50px;
+    max-height: 120px;
+    resize: none;
+    overflow-y: auto;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 17px;
+    outline: none;
+    background: var(--panel);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 20px;
+}
+
+#search:focus {
+    border-color: var(--cyan);
+    box-shadow: 0 0 12px rgba(66,245,239,0.12);
+}
+
+#search::placeholder {
+    color: var(--muted);
+}
+
+#starting-button {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--cyan);
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(66,245,239,0.16), rgba(58,156,255,0.16));
+    color: var(--cyan);
+    cursor: pointer;
+}
+
+#starting-button svg {
+    width: 22px;
+    height: 22px;
+}
+
+/* 채팅창 */
+
+#chatbox {
+    width: 100%;
+    height: 350px;
+    margin-top: 18px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at 50% 0%, rgba(58,156,255,0.08), transparent 50%),
+        linear-gradient(180deg, rgba(8,18,27,0.96), rgba(3,7,12,0.98));
+}
+
+/* 처음 화면에는 아이콘만 정중앙에 표시 */
+
+#welcome {
+    flex: 1;
+    min-height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#welcome-icon {
+    color: var(--cyan);
+    font-size: 38px;
+    line-height: 1;
+    text-shadow:
+        0 0 10px rgba(66,245,239,0.8),
+        0 0 28px rgba(66,245,239,0.4);
+}
+
+/* 채팅 메시지 */
+
+.message {
+    max-width: 85%;
+    padding: 11px 14px;
+    border-radius: 15px;
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.user-message {
+    align-self: flex-end;
+    color: #031016;
+    background: linear-gradient(135deg, var(--cyan), var(--blue));
+    border-radius: 15px 15px 4px 15px;
+}
+
+.ai-message {
+    align-self: flex-start;
+    color: var(--text);
+    background: linear-gradient(135deg, rgba(58,156,255,0.14), rgba(167,139,250,0.12));
+    border: 1px solid rgba(58,156,255,0.2);
+    border-radius: 15px 15px 15px 4px;
+}
+
+/* 공통 창 */
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 18px;
+    background: rgba(0,0,0,0.82);
+    backdrop-filter: blur(8px);
+}
+
+.overlay.active {
+    display: flex;
+}
+
+.window {
+    width: 100%;
+    max-width: 430px;
+    max-height: 85vh;
+    overflow: auto;
+    padding: 20px;
+    border: 1px solid var(--cyan);
+    border-radius: 16px;
+    background: #061019;
+    box-shadow: 0 0 25px rgba(66,245,239,0.12);
+}
+
+.window-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.window-header h2 {
+    margin: 0;
+    color: var(--cyan);
+    font-size: 18px;
+    letter-spacing: 2px;
+}
+
+.close-button {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--cyan);
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* 비밀번호 창 */
+
+#password-window {
+    max-width: 220px;
+    padding: 20px;
+}
+
+#password-input {
+    width: 100%;
+    height: 44px;
+    border: 1px solid var(--cyan);
+    border-radius: 10px;
+    outline: none;
+    background: #03070c;
+    color: var(--cyan);
+    text-align: center;
+    letter-spacing: 9px;
+    font-size: 20px;
+}
+
+/* 데이터 관리창 */
+
+.field {
+    margin-bottom: 14px;
+}
+
+.field label {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 2px;
+}
+
+.field input,
+.field select,
+.field textarea {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    outline: none;
+    background: #03070c;
+    color: var(--text);
+    font: inherit;
+}
+
+.field textarea {
+    min-height: 75px;
+    resize: vertical;
+}
+
+.action-button {
+    min-height: 40px;
+    padding: 10px 14px;
+    border: 1px solid var(--cyan);
+    border-radius: 9px;
+    background: rgba(66,245,239,0.08);
+    color: var(--cyan);
+    cursor: pointer;
+}
+
+.action-button:hover {
+    background: rgba(66,245,239,0.16);
+}
+
+#data-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-top: 20px;
+}
+
+.data-item {
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: rgba(255,255,255,0.02);
+    overflow-wrap: anywhere;
+}
+
+.data-item strong {
+    color: var(--cyan);
+}
+
+.data-item p {
+    margin: 7px 0;
+    font-size: 13px;
+    white-space: pre-wrap;
+}
+
+.data-item button {
+    margin-top: 5px;
+}
+
+.data-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+/* 터미널 */
+
+#terminal-output {
+    min-height: 130px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 12px;
+    border: 1px solid rgba(66,245,239,0.18);
+    border-radius: 8px;
+    background: #020604;
+    color: #7dff9b;
+    font: 13px/1.6 monospace;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+#terminal-input {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    border: 1px solid rgba(66,245,239,0.3);
+    border-radius: 8px;
+    outline: none;
+    background: #020604;
+    color: #7dff9b;
+    font: 14px monospace;
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 18px 12px;
     }
 
-    button,
-    textarea,
-    input,
-    select {
-      font: inherit;
+    h1 {
+        margin-top: 32px;
     }
-
-    button {
-      -webkit-tap-highlight-color: transparent;
-      cursor: pointer;
-    }
-
-    /* =========================
-       2. 전체 레이아웃
-    ========================= */
-
-    #system {
-      width: 100%;
-      max-width: 430px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    /* =========================
-       3. 제목
-    ========================= */
-
-    #title {
-      margin: 40px 0 8px;
-
-      color: var(--cyan);
-      font-size: clamp(34px, 9vw, 43px);
-      font-weight: 800;
-      letter-spacing: 5px;
-      line-height: 1.2;
-      text-align: center;
-
-      text-shadow:
-        0 0 10px rgba(66, 245, 239, 0.38),
-        0 0 30px rgba(66, 245, 239, 0.12);
-    }
-
-    #subtitle {
-      margin: 0 0 30px;
-
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 3px;
-      text-align: center;
-    }
-
-    /* 얇은 장식선 */
-
-    #accent-line {
-      width: 48px;
-      height: 2px;
-      margin: 0 0 26px;
-
-      background: linear-gradient(
-        90deg,
-        var(--blue),
-        var(--cyan),
-        var(--purple)
-      );
-
-      border-radius: 2px;
-      box-shadow: 0 0 12px rgba(66, 245, 239, 0.4);
-    }
-
-    /* =========================
-       4. 입력 영역
-    ========================= */
-
-    #input-area {
-      width: 100%;
-      display: flex;
-      align-items: flex-end;
-      gap: 9px;
-    }
-
-    #search {
-      flex: 1;
-      min-width: 0;
-      min-height: 50px;
-      max-height: 120px;
-      padding: 14px 16px;
-
-      color: var(--text);
-      background: rgba(8, 18, 27, 0.94);
-
-      border: 1px solid rgba(66, 245, 239, 0.27);
-      border-radius: 17px;
-      outline: none;
-
-      font-size: 14px;
-      line-height: 1.55;
-
-      resize: none;
-      overflow-y: auto;
-      overflow-wrap: anywhere;
-
-      box-shadow:
-        inset 0 0 16px rgba(66, 245, 239, 0.025);
-
-      transition:
-        border-color 0.2s,
-        box-shadow 0.2s,
-        background 0.2s;
-    }
-
-    #search::placeholder {
-      color: #78909e;
-    }
-
-    #search:focus {
-      background: #091722;
-      border-color: rgba(66, 245, 239, 0.75);
-
-      box-shadow:
-        0 0 0 3px rgba(66, 245, 239, 0.055),
-        0 0 18px rgba(66, 245, 239, 0.07);
-    }
-
-    /* =========================
-       5. 전송 버튼
-    ========================= */
-
-    #starting-button {
-      width: 50px;
-      height: 50px;
-      flex-shrink: 0;
-      padding: 0;
-
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
-      color: var(--cyan);
-      background: linear-gradient(
-        145deg,
-        #102d39,
-        #09121e
-      );
-
-      border: 1px solid rgba(66, 245, 239, 0.58);
-      border-radius: 16px;
-
-      box-shadow:
-        0 0 14px rgba(66, 245, 239, 0.09),
-        inset 0 0 10px rgba(66, 245, 239, 0.04);
-
-      transition:
-        transform 0.18s,
-        border-color 0.18s,
-        box-shadow 0.18s;
-    }
-
-    #starting-button:hover {
-      border-color: var(--cyan);
-      box-shadow:
-        0 0 18px rgba(66, 245, 239, 0.19);
-    }
-
-    #starting-button:active {
-      transform: scale(0.94);
-    }
-
-    #starting-button svg {
-      width: 21px;
-      height: 21px;
-    }
-
-    /* =========================
-       6. 채팅창
-       원본 디자인 유지
-    ========================= */
 
     #chatbox {
-      width: 100%;
-      height: 350px;
-      margin-top: 18px;
-      padding: 15px;
-
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 13px;
-
-      overflow-y: auto;
-      overflow-x: hidden;
-      overflow-wrap: anywhere;
-      overscroll-behavior: contain;
-
-      scrollbar-width: thin;
-      scrollbar-color: #235d68 transparent;
-
-      background:
-        radial-gradient(
-          ellipse at top left,
-          rgba(66, 245, 239, 0.055),
-          transparent 60%
-        ),
-        linear-gradient(
-          155deg,
-          rgba(9, 21, 32, 0.98),
-          rgba(4, 9, 15, 0.99)
-        );
-
-      border: 1px solid var(--line);
-      border-radius: 18px;
-
-      box-shadow:
-        0 0 22px rgba(66, 245, 239, 0.045),
-        inset 0 0 24px rgba(66, 245, 239, 0.018);
-    }
-
-    /* =========================
-       7. 시작 화면
-    ========================= */
-
-    #welcome {
-      width: 100%;
-      margin: auto 0;
-
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 2;
-      letter-spacing: 1px;
-      text-align: center;
-    }
-
-    #welcome span {
-      display: block;
-      margin-bottom: 9px;
-
-      color: var(--cyan);
-      font-size: 26px;
-
-      text-shadow:
-        0 0 14px rgba(66, 245, 239, 0.4);
-    }
-
-    #welcome strong {
-      color: #c3dce8;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 2px;
-    }
-
-    /* =========================
-       8. 채팅 말풍선
-       원본 디자인 유지
-    ========================= */
-
-    #chatbox p.message {
-      width: fit-content;
-      max-width: 88%;
-      margin: 0;
-      padding: 10px 14px;
-
-      color: var(--text);
-      font-size: 14px;
-      line-height: 1.7;
-
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-      word-break: normal;
-
-      animation: messageAppear 0.22s ease-out;
-    }
-
-    /* 사용자 말풍선 */
-
-    #chatbox p.user {
-      align-self: flex-end;
-
-      background: linear-gradient(
-        135deg,
-        rgba(29, 135, 160, 0.28),
-        rgba(30, 75, 116, 0.23)
-      );
-
-      border: 1px solid rgba(66, 245, 239, 0.38);
-      border-radius: 15px 15px 4px 15px;
-
-      box-shadow:
-        0 0 13px rgba(66, 245, 239, 0.035);
-    }
-
-    /* AI 말풍선 */
-
-    #chatbox p.ai {
-      align-self: flex-start;
-
-      background: linear-gradient(
-        135deg,
-        rgba(22, 34, 54, 0.98),
-        rgba(12, 20, 33, 0.98)
-      );
-
-      border: 1px solid rgba(167, 139, 250, 0.36);
-      border-radius: 15px 15px 15px 4px;
-
-      box-shadow:
-        inset 2px 0 0 rgba(167, 139, 250, 0.22),
-        0 0 13px rgba(167, 139, 250, 0.035);
-    }
-
-    /* =========================
-       9. 애니메이션
-    ========================= */
-
-    @keyframes messageAppear {
-      from {
-        opacity: 0;
-        transform: translateY(5px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* =========================
-       10. 작은 화면 대응
-    ========================= */
-
-    @media (max-width: 400px) {
-      body {
-        padding: 20px 13px;
-      }
-
-      #title {
-        margin-top: 32px;
-        letter-spacing: 4px;
-      }
-
-      #subtitle {
-        margin-bottom: 25px;
-      }
-
-      #chatbox {
         height: 330px;
-        padding: 12px;
-      }
-
-      #chatbox p.message {
-        max-width: 92%;
-        font-size: 13px;
-      }
     }
-
-    @media (prefers-reduced-motion: reduce) {
-      *,
-      *::before,
-      *::after {
-        animation: none !important;
-        transition: none !important;
-      }
-    }
-
-    /* =========================
-       11. 팝업 공통 디자인
-    ========================= */
-
-    .overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-
-      display: none;
-      align-items: center;
-      justify-content: center;
-
-      padding: 20px;
-      background: rgba(0, 0, 0, 0.84);
-    }
-
-    .overlay.open {
-      display: flex;
-    }
-
-    .window {
-      width: 100%;
-      max-width: 390px;
-      max-height: 85vh;
-      overflow-y: auto;
-      margin: auto;
-      padding: 22px;
-
-      color: var(--text);
-      background: #071018;
-
-      border: 1px solid var(--line);
-      border-radius: 14px;
-
-      box-shadow: 0 0 30px rgba(66, 245, 239, 0.08);
-    }
-
-    .window-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 22px;
-    }
-
-    .window-header h2 {
-      margin: 0;
-      color: var(--cyan);
-      font-size: 18px;
-      font-weight: 600;
-    }
-
-    .close-button {
-      width: 32px;
-      height: 32px;
-      flex-shrink: 0;
-
-      border: none;
-      border-radius: 8px;
-
-      background: transparent;
-      color: var(--muted);
-      font-size: 24px;
-    }
-
-    .close-button:hover {
-      background: rgba(255, 255, 255, 0.06);
-      color: var(--text);
-    }
-
-    /* =========================
-       12. 비밀번호 창
-    ========================= */
-
-    #password-overlay {
-      z-index: 2000;
-    }
-
-    #password-window {
-      width: 220px;
-      max-width: calc(100vw - 40px);
-      padding: 26px;
-
-      text-align: center;
-      overflow: hidden;
-    }
-
-    #password-input {
-      display: block;
-      width: 100%;
-      height: 52px;
-      margin: 0 auto;
-      padding: 0 0 0 10px;
-
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      outline: none;
-
-      background: #03070c;
-      color: var(--cyan);
-
-      text-align: center;
-      font-size: 25px;
-      letter-spacing: 9px;
-      caret-color: var(--cyan);
-    }
-
-    #password-input:focus {
-      border-color: var(--cyan);
-      box-shadow: 0 0 12px rgba(66, 245, 239, 0.08);
-    }
-
-    #password-error {
-      min-height: 12px;
-      margin-top: 8px;
-      font-size: 11px;
-      color: #ff7777;
-    }
-
-    /* =========================
-       13. 데이터 관리 창
-    ========================= */
-
-    .field {
-      margin-bottom: 16px;
-    }
-
-    .field label {
-      display: block;
-      margin-bottom: 7px;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .field input,
-    .field textarea,
-    .field select {
-      display: block;
-      width: 100%;
-      padding: 11px;
-
-      border: 1px solid var(--line);
-      border-radius: 9px;
-      outline: none;
-
-      background: #03070c;
-      color: var(--text);
-    }
-
-    .field input:focus,
-    .field textarea:focus,
-    .field select:focus {
-      border-color: var(--cyan);
-    }
-
-    .field textarea {
-      min-height: 78px;
-      resize: vertical;
-    }
-
-    .primary-button {
-      width: 100%;
-      padding: 12px;
-
-      border: none;
-      border-radius: 9px;
-
-      background: var(--cyan);
-      color: #001012;
-      font-weight: bold;
-    }
-
-    .primary-button:hover {
-      background: #a1fffb;
-    }
-
-    .secondary-button {
-      padding: 9px 12px;
-
-      border: 1px solid var(--line);
-      border-radius: 8px;
-
-      background: transparent;
-      color: var(--cyan);
-      font-size: 12px;
-    }
-
-    #terminal-status {
-      min-height: 18px;
-      margin: 12px 0;
-
-      color: var(--muted);
-      font-size: 12px;
-      overflow-wrap: anywhere;
-    }
-
-    .data-list {
-      margin-top: 20px;
-      border-top: 1px solid var(--line);
-    }
-
-    .data-item {
-      padding: 13px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .data-item-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 7px;
-    }
-
-    .data-type {
-      color: var(--cyan);
-      font-size: 11px;
-    }
-
-    .delete-button {
-      border: none;
-      background: transparent;
-      color: #ff8585;
-      font-size: 12px;
-    }
-
-    .data-content {
-      margin: 0 0 5px;
-      font-size: 14px;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
-
-    .data-meaning {
-      margin: 0;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.5;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
-
-    .empty-list {
-      padding: 22px 0;
-      color: var(--muted);
-      text-align: center;
-      font-size: 13px;
-    }
-
-    /* =========================
-       14. 터미널 창
-    ========================= */
-
-    #console-window {
-      max-width: 500px;
-      background: #020608;
-      border-color: rgba(66, 245, 239, 0.35);
-    }
-
-    #console-output {
-      min-height: 170px;
-      max-height: 38vh;
-      overflow-y: auto;
-      margin-bottom: 12px;
-
-      color: var(--cyan);
-      font-family: monospace;
-      font-size: 13px;
-      line-height: 1.7;
-
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
-
-    .console-line {
-      margin-bottom: 4px;
-    }
-
-    #console-form {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-family: monospace;
-    }
-
-    .console-prompt {
-      color: var(--cyan);
-    }
-
-    #console-input {
-      flex: 1;
-      min-width: 0;
-      padding: 10px 0;
-
-      border: none;
-      border-bottom: 1px solid var(--line);
-      outline: none;
-
-      background: transparent;
-      color: var(--text);
-
-      font-family: monospace;
-      font-size: 14px;
-    }
-
-    #console-run {
-      padding: 9px 12px;
-
-      border: 1px solid var(--line);
-      border-radius: 7px;
-
-      background: transparent;
-      color: var(--cyan);
-      font-size: 12px;
-    }
-
-    @media (max-width: 400px) {
-      .window {
-        padding: 17px;
-      }
-
-      #password-window {
-        padding: 26px;
-      }
-    }
-  </style>
+}
+</style>
 </head>
 
 <body>
 
-  <!-- =========================
-       메인 화면
-       네가 보내준 원본 디자인
-  ========================= -->
+<main id="system">
 
-  <main id="system">
-
-    <h1 id="title">BUPSENT</h1>
-
-    <p id="subtitle">NEURAL INTERFACE</p>
-
+    <h1>BUPSENT</h1>
+    <div id="subtitle">NEURAL INTERFACE</div>
     <div id="accent-line"></div>
 
     <form id="input-area">
+        <textarea id="search" placeholder="메시지를 입력하세요..." rows="1"></textarea>
 
-      <textarea
-        id="search"
-        rows="1"
-        placeholder="Ask anything..."
-        aria-label="메시지 입력"
-      ></textarea>
-
-      <button
-        type="submit"
-        id="starting-button"
-        aria-label="메시지 전송"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M22 2 11 13"></path>
-          <path d="m22 2-7 20-4-9-9-4 20-7Z"></path>
-        </svg>
-      </button>
-
+        <button id="starting-button" type="submit" aria-label="전송">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            </svg>
+        </button>
     </form>
 
-    <div id="chatbox" aria-live="polite">
-
-      <div id="welcome">
-        <span>◈</span>
-        <strong>BUPSENT INTERFACE</strong>
-        <br>
-        SYSTEM READY
-      </div>
-
-    </div>
-
-  </main>
-
-
-  <!-- =========================
-       비밀번호 창
-  ========================= -->
-
-  <div class="overlay" id="password-overlay">
-
-    <section
-      class="window"
-      id="password-window"
-      role="dialog"
-      aria-modal="true"
-      aria-label="비밀번호 입력"
-    >
-
-      <input
-        id="password-input"
-        type="password"
-        inputmode="text"
-        maxlength="4"
-        autocomplete="off"
-        autocapitalize="off"
-        spellcheck="false"
-        aria-label="비밀번호"
-      >
-
-      <div id="password-error"></div>
-
+    <section id="chatbox" aria-live="polite">
+        <div id="welcome">
+            <div id="welcome-icon">◈</div>
+        </div>
     </section>
 
-  </div>
+</main>
 
+<!-- 비밀번호 입력창 -->
 
-  <!-- =========================
-       데이터 관리 창
-  ========================= -->
-
-  <div class="overlay" id="data-overlay">
-
-    <section
-      class="window"
-      id="data-window"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="data-title"
-    >
-
-      <div class="window-header">
-
-        <h2 id="data-title">BPS DATA</h2>
-
-        <button
-          class="close-button"
-          type="button"
-          data-close="data-overlay"
-          aria-label="닫기"
-        >×</button>
-
-      </div>
-
-      <form id="data-form">
-
-        <div class="field">
-
-          <label for="data-type">DATA TYPE</label>
-
-          <select id="data-type">
-            <option value="word">단어</option>
-            <option value="sentence">문장</option>
-            <option value="knowledge">지식</option>
-          </select>
-
-        </div>
-
-        <div class="field">
-
-          <label for="data-content">CONTENT</label>
-
-          <textarea
-            id="data-content"
-            maxlength="2000"
-            required
-            placeholder="저장할 내용을 입력하세요"
-          ></textarea>
-
-        </div>
-
-        <div class="field">
-
-          <label for="data-meaning">MEANING</label>
-
-          <textarea
-            id="data-meaning"
-            maxlength="5000"
-            placeholder="의미 또는 설명을 입력하세요"
-          ></textarea>
-
-        </div>
-
-        <button class="primary-button" type="submit">
-          SAVE DATA
-        </button>
-
-      </form>
-
-      <div id="terminal-status" role="status"></div>
-
-      <div class="window-header">
-
-        <h2>STORED DATA</h2>
-
-        <button
-          class="secondary-button"
-          id="export-button"
-          type="button"
-        >EXPORT JSON</button>
-
-      </div>
-
-      <div id="data-list" class="data-list"></div>
-
-    </section>
-
-  </div>
-
-
-  <!-- =========================
-       터미널 창
-  ========================= -->
-
-  <div class="overlay" id="console-overlay">
-
-    <section
-      class="window"
-      id="console-window"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="console-title"
-    >
-
-      <div class="window-header">
-
-        <h2 id="console-title">BPS CONSOLE</h2>
-
-        <button
-          class="close-button"
-          type="button"
-          data-close="console-overlay"
-          aria-label="닫기"
-        >×</button>
-
-      </div>
-
-      <div id="console-output" aria-live="polite"></div>
-
-      <form id="console-form">
-
-        <span class="console-prompt">&gt;</span>
-
+<div class="overlay" id="password-overlay">
+    <div class="window" id="password-window">
         <input
-          id="console-input"
-          type="text"
-          autocomplete="off"
-          placeholder="명령어 입력"
-          aria-label="터미널 명령어"
+            id="password-input"
+            type="password"
+            inputmode="text"
+            maxlength="4"
+            autocomplete="off"
+            aria-label="비밀번호"
         >
+    </div>
+</div>
 
-        <button id="console-run" type="submit">
-          RUN
-        </button>
+<!-- 데이터 관리창 -->
 
-      </form>
+<div class="overlay" id="data-overlay">
+    <section class="window">
+        <header class="window-header">
+            <h2>BPS DATA</h2>
+            <button class="close-button" data-close="data-overlay" aria-label="닫기">&times;</button>
+        </header>
 
+        <div class="field">
+            <label for="data-type">TYPE</label>
+            <select id="data-type">
+                <option value="word">WORD</option>
+                <option value="sentence">SENTENCE</option>
+                <option value="knowledge">KNOWLEDGE</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label for="data-content">CONTENT</label>
+            <textarea id="data-content" placeholder="예: 사과"></textarea>
+        </div>
+
+        <div class="field">
+            <label for="data-meaning">MEANING</label>
+            <textarea id="data-meaning" placeholder="예: 과일"></textarea>
+        </div>
+
+        <button class="action-button" id="save-data-button">SAVE DATA</button>
+
+        <div class="data-actions">
+            <button class="action-button" id="export-data-button">EXPORT JSON</button>
+        </div>
+
+        <div id="data-list"></div>
     </section>
+</div>
 
-  </div>
+<!-- 터미널 창 -->
 
+<div class="overlay" id="terminal-overlay">
+    <section class="window">
+        <header class="window-header">
+            <h2>BPS CONSOLE</h2>
+            <button class="close-button" data-close="terminal-overlay" aria-label="닫기">&times;</button>
+        </header>
 
-  <script>
-    /* =========================
-       1. HTML 요소 연결
-    ========================= */
+        <div id="terminal-output">BPS CONSOLE READY
+명령어를 입력하세요.
+help - 명령어 목록
+clear - 화면 지우기
+data - 저장된 데이터 개수 확인</div>
 
-    const search = document.getElementById("search");
-    const button = document.getElementById("starting-button");
-    const chatbox = document.getElementById("chatbox");
+        <input id="terminal-input" type="text" placeholder="명령어 입력..." autocomplete="off">
+    </section>
+</div>
+
+<script>
+const searchInput = document.getElementById("search");
+const chatbox = document.getElementById("chatbox");
+const inputArea = document.getElementById("input-area");
+
+const passwordOverlay = document.getElementById("password-overlay");
+const passwordInput = document.getElementById("password-input");
+
+const dataOverlay = document.getElementById("data-overlay");
+const terminalOverlay = document.getElementById("terminal-overlay");
+
+const dataContent = document.getElementById("data-content");
+const dataMeaning = document.getElementById("data-meaning");
+const dataType = document.getElementById("data-type");
+const dataList = document.getElementById("data-list");
+
+const terminalOutput = document.getElementById("terminal-output");
+const terminalInput = document.getElementById("terminal-input");
+
+const STORAGE_KEY = "BUPSENT_DATA_V1";
+const PASSWORD = "3868";
+
+let pendingDestination = "";
+let lastFocusedElement = null;
+
+/* 저장된 데이터 불러오기 */
+
+function getStoredData() {
+    try {
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        return Array.isArray(stored) ? stored : [];
+    } catch (error) {
+        return [];
+    }
+}
+
+/* 데이터 저장하기 */
+
+function setStoredData(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+/* 처음 화면의 아이콘 */
+
+function showWelcome() {
+    if (chatbox.querySelector(".message")) {
+        return;
+    }
+
+    if (!document.getElementById("welcome")) {
+        const welcome = document.createElement("div");
+        welcome.id = "welcome";
+        welcome.innerHTML = '<div id="welcome-icon">◈</div>';
+        chatbox.appendChild(welcome);
+    }
+}
+
+/* 메시지 추가 */
+
+function addMessage(text, type) {
     const welcome = document.getElementById("welcome");
 
-    const passwordOverlay =
-      document.getElementById("password-overlay");
-
-    const passwordInput =
-      document.getElementById("password-input");
-
-    const passwordError =
-      document.getElementById("password-error");
-
-    const dataOverlay =
-      document.getElementById("data-overlay");
-
-    const dataForm =
-      document.getElementById("data-form");
-
-    const dataType =
-      document.getElementById("data-type");
-
-    const dataContent =
-      document.getElementById("data-content");
-
-    const dataMeaning =
-      document.getElementById("data-meaning");
-
-    const dataList =
-      document.getElementById("data-list");
-
-    const terminalStatus =
-      document.getElementById("terminal-status");
-
-    const consoleOverlay =
-      document.getElementById("console-overlay");
-
-    const consoleOutput =
-      document.getElementById("console-output");
-
-    const consoleForm =
-      document.getElementById("console-form");
-
-    const consoleInput =
-      document.getElementById("console-input");
-
-    const STORAGE_KEY = "BUPSENT_DATA_V1";
-    const DATA_PASSWORD = "3868";
-
-    let pendingDestination = null;
-    let previousFocus = null;
-
-
-    /* =========================
-       2. 채팅 메시지 생성
-       원본의 prepend 방식 유지
-    ========================= */
-
-    function addMessage(text, type) {
-      const message = document.createElement("p");
-
-      message.classList.add("message", type);
-      message.textContent = text;
-
-      chatbox.prepend(message);
-
-      return message;
-    }
-
-
-    /* =========================
-       3. 입력창 크기 조절
-    ========================= */
-
-    function resizeInput() {
-      search.style.height = "auto";
-
-      const newHeight = Math.min(search.scrollHeight, 120);
-
-      search.style.height = newHeight + "px";
-
-      search.style.overflowY =
-        search.scrollHeight > 120 ? "auto" : "hidden";
-    }
-
-    search.addEventListener("input", resizeInput);
-
-
-    /* =========================
-       4. 메시지 전송 및 명령어
-    ========================= */
-
-    function askAI() {
-      const text = search.value.trim();
-
-      if (text === "") {
-        search.focus();
-        return;
-      }
-
-      const command = text.toLowerCase();
-
-      /*
-        명령어는 일반 채팅 메시지로 표시하지 않고
-        먼저 비밀번호 창을 연다.
-      */
-
-      if (command === "/bps data") {
-        search.value = "";
-        resizeInput();
-        openPasswordWindow("data");
-        return;
-      }
-
-      if (command === "/bps console") {
-        search.value = "";
-        resizeInput();
-        openPasswordWindow("console");
-        return;
-      }
-
-      /* 첫 메시지 전송 시 시작 안내 제거 */
-
-      if (welcome.isConnected) {
+    if (welcome) {
         welcome.remove();
-      }
-
-      /* 사용자 메시지 표시 */
-
-      addMessage(text, "user");
-
-      /* 기존 BPS 응답 기능 */
-
-      if (command === "bps") {
-        addMessage(
-          "BPS AI 시스템에 접속했습니다.",
-          "ai"
-        );
-      }
-
-      /* 입력창 초기화 */
-
-      search.value = "";
-      resizeInput();
-      search.focus();
-
-      /* 새 메시지가 있는 맨 위로 이동 */
-
-      chatbox.scrollTop = 0;
     }
 
-    button.addEventListener("click", askAI);
+    const message = document.createElement("div");
+    message.className = "message " + type;
+    message.textContent = text;
+
+    chatbox.prepend(message);
+}
+
+/* 데이터 내용으로 답변 찾기 */
+
+function findSavedMeaning(userText) {
+    const data = getStoredData();
+
+    const normalizedInput = userText.trim().toLocaleLowerCase();
+
+    if (!normalizedInput) {
+        return null;
+    }
 
     /*
-      Shift + Enter는 줄바꿈
-      Enter는 메시지 전송
+      CONTENT가 사용자의 입력과 일치하는 데이터를 찾는다.
+      예: CONTENT = 사과, MEANING = 과일
+      입력: 사과
+      답변: 과일
     */
 
-    search.addEventListener("keydown", function(event) {
-      if (
-        event.key === "Enter" &&
-        !event.shiftKey &&
-        !event.isComposing
-      ) {
+    const matched = data.find(item => {
+        if (!item.content || !item.meaning) {
+            return false;
+        }
+
+        return item.content.trim().toLocaleLowerCase() === normalizedInput;
+    });
+
+    return matched ? matched.meaning : null;
+}
+
+/* AI 답변 처리 */
+
+function getAIResponse(userText) {
+    const input = userText.trim();
+
+    if (!input) {
+        return "";
+    }
+
+    /*
+      1. 저장된 CONTENT와 일치하는지 먼저 검색한다.
+      2. 일치하면 해당 MEANING을 답변한다.
+      3. 일치하는 데이터가 없으면 기본 답변을 사용한다.
+    */
+
+    const savedMeaning = findSavedMeaning(input);
+
+    if (savedMeaning !== null) {
+        return savedMeaning;
+    }
+
+    if (input === "/bps data") {
+        pendingDestination = "data-overlay";
+        openPasswordWindow();
+        return "";
+    }
+
+    if (input === "/bps console") {
+        pendingDestination = "terminal-overlay";
+        openPasswordWindow();
+        return "";
+    }
+
+    if (input.toLowerCase() === "bps") {
+        return "BPS AI 시스템에 접속했습니다.";
+    }
+
+    return "아직 저장된 답변이 없습니다.";
+}
+
+/* 메시지 전송 */
+
+function askAI() {
+    const text = searchInput.value.trim();
+
+    if (!text) {
+        return;
+    }
+
+    const isCommand =
+        text === "/bps data" ||
+        text === "/bps console";
+
+    addMessage(text, "user-message");
+    searchInput.value = "";
+    searchInput.style.height = "50px";
+
+    const response = getAIResponse(text);
+
+    if (response) {
+        addMessage(response, "ai-message");
+    }
+
+    /*
+      명령어 입력 후에는 데이터/터미널 창을 열고,
+      일반 입력은 저장된 데이터를 이용해 답변한다.
+    */
+    if (isCommand) {
+        // 비밀번호 창은 getAIResponse에서 요청한다.
+    }
+}
+
+inputArea.addEventListener("submit", function(event) {
+    event.preventDefault();
+    askAI();
+});
+
+searchInput.addEventListener("keydown", function(event) {
+    if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
         event.preventDefault();
         askAI();
-      }
-    });
+    }
+});
 
+searchInput.addEventListener("input", function() {
+    this.style.height = "50px";
+    this.style.height = Math.min(this.scrollHeight, 120) + "px";
+});
 
-    /* =========================
-       5. 팝업 열기 및 닫기
-    ========================= */
+/* 비밀번호 창 열기 */
 
-    function openOverlay(overlay, focusElement) {
-      previousFocus = document.activeElement;
+function openPasswordWindow() {
+    lastFocusedElement = document.activeElement;
+    passwordInput.value = "";
+    passwordOverlay.classList.add("active");
 
-      overlay.classList.add("open");
+    setTimeout(function() {
+        passwordInput.focus();
+    }, 50);
+}
 
-      if (focusElement) {
-        setTimeout(function() {
-          focusElement.focus();
-        }, 80);
-      }
+/* 비밀번호 검사 */
+
+passwordInput.addEventListener("input", function() {
+    this.value = this.value.replace(/\D/g, "").slice(0, 4);
+});
+
+passwordInput.addEventListener("keydown", function(event) {
+    if (event.key !== "Enter") {
+        return;
     }
 
-    function closeOverlay(overlay) {
-      overlay.classList.remove("open");
+    event.preventDefault();
 
-      if (overlay === passwordOverlay) {
+    if (passwordInput.value.length !== 4) {
+        return;
+    }
+
+    if (passwordInput.value !== PASSWORD) {
         passwordInput.value = "";
-        passwordError.textContent = "";
-        pendingDestination = null;
-      }
-
-      if (
-        previousFocus &&
-        typeof previousFocus.focus === "function"
-      ) {
-        previousFocus.focus();
-      }
+        return;
     }
 
-    document.querySelectorAll("[data-close]").forEach(
-      function(button) {
-        button.addEventListener("click", function() {
-          const overlay = document.getElementById(
-            button.dataset.close
-          );
+    passwordOverlay.classList.remove("active");
 
-          closeOverlay(overlay);
+    if (pendingDestination === "data-overlay") {
+        dataOverlay.classList.add("active");
+        renderDataList();
+    } else if (pendingDestination === "terminal-overlay") {
+        terminalOverlay.classList.add("active");
+        terminalInput.focus();
+    }
+
+    pendingDestination = "";
+});
+
+/* 창 닫기 */
+
+function closeOverlay(overlay) {
+    overlay.classList.remove("active");
+
+    if (overlay === passwordOverlay) {
+        pendingDestination = "";
+    }
+
+    if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
+        lastFocusedElement.focus();
+    }
+}
+
+document.querySelectorAll("[data-close]").forEach(button => {
+    button.addEventListener("click", function() {
+        const overlay = document.getElementById(this.dataset.close);
+        closeOverlay(overlay);
+    });
+});
+
+[passwordOverlay, dataOverlay, terminalOverlay].forEach(overlay => {
+    overlay.addEventListener("click", function(event) {
+        if (event.target === overlay) {
+            closeOverlay(overlay);
+        }
+    });
+});
+
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape") {
+        [passwordOverlay, dataOverlay, terminalOverlay].forEach(overlay => {
+            if (overlay.classList.contains("active")) {
+                closeOverlay(overlay);
+            }
         });
-      }
+    }
+});
+
+/* 데이터 저장 */
+
+document.getElementById("save-data-button").addEventListener("click", function() {
+    const content = dataContent.value.trim();
+    const meaning = dataMeaning.value.trim();
+    const type = dataType.value;
+
+    if (!content || !meaning) {
+        alert("CONTENT와 MEANING을 모두 입력해 주세요.");
+        return;
+    }
+
+    const data = getStoredData();
+
+    const existingIndex = data.findIndex(item =>
+        item.type === type &&
+        item.content.trim().toLocaleLowerCase() === content.toLocaleLowerCase()
     );
 
-    [
-      passwordOverlay,
-      dataOverlay,
-      consoleOverlay
-    ].forEach(function(overlay) {
-      overlay.addEventListener("click", function(event) {
-        if (event.target === overlay) {
-          closeOverlay(overlay);
-        }
-      });
-    });
-
-    document.addEventListener("keydown", function(event) {
-      if (event.key === "Escape") {
-        const opened = document.querySelector(".overlay.open");
-
-        if (opened) {
-          closeOverlay(opened);
-        }
-      }
-    });
-
-
-    /* =========================
-       6. 비밀번호 인증
-    ========================= */
-
-    function openPasswordWindow(destination) {
-      pendingDestination = destination;
-
-      passwordInput.value = "";
-      passwordError.textContent = "";
-
-      openOverlay(passwordOverlay, passwordInput);
-    }
-
-    passwordInput.addEventListener("input", function() {
-      /* 숫자만 입력 가능, 최대 4자리 */
-
-      passwordInput.value = passwordInput.value
-        .replace(/\D/g, "")
-        .slice(0, 4);
-
-      passwordError.textContent = "";
-    });
-
-    passwordInput.addEventListener("keydown", function(event) {
-      if (event.key !== "Enter") {
-        return;
-      }
-
-      event.preventDefault();
-
-      if (passwordInput.value.length !== 4) {
-        return;
-      }
-
-      if (passwordInput.value === DATA_PASSWORD) {
-        const destination = pendingDestination;
-
-        passwordOverlay.classList.remove("open");
-        passwordInput.value = "";
-        passwordError.textContent = "";
-        pendingDestination = null;
-
-        if (destination === "data") {
-          openDataConsole();
-        } else if (destination === "console") {
-          openConsole();
-        }
-
-      } else {
-        /* 틀리면 입력값 초기화 */
-
-        passwordInput.value = "";
-        passwordError.textContent = "";
-        passwordInput.focus();
-      }
-    });
-
-
-    /* =========================
-       7. 데이터 불러오기 및 저장
-    ========================= */
-
-    function loadData() {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-
-        if (!saved) {
-          return [];
-        }
-
-        const parsed = JSON.parse(saved);
-
-        return Array.isArray(parsed) ? parsed : [];
-
-      } catch (error) {
-        return [];
-      }
-    }
-
-    function saveData(items) {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(items)
-      );
-    }
-
-    function setTerminalStatus(text) {
-      terminalStatus.textContent = text;
-    }
-
-    function openDataConsole() {
-      renderDataList();
-      setTerminalStatus("");
-
-      openOverlay(dataOverlay, dataContent);
-    }
-
-    dataForm.addEventListener("submit", function(event) {
-      event.preventDefault();
-
-      const type = dataType.value;
-      const content = dataContent.value.trim();
-      const meaning = dataMeaning.value.trim();
-
-      if (!content) {
-        setTerminalStatus("내용을 입력하세요.");
-        return;
-      }
-
-      const items = loadData();
-
-      const duplicate = items.some(function(item) {
-        return (
-          item.type === type &&
-          item.content.toLowerCase() === content.toLowerCase()
-        );
-      });
-
-      if (duplicate) {
-        setTerminalStatus(
-          "같은 유형과 내용의 데이터가 이미 있습니다."
-        );
-        return;
-      }
-
-      const newItem = {
-        id:
-          Date.now().toString() +
-          Math.random().toString(16).slice(2),
-
+    const newItem = {
         type: type,
         content: content,
         meaning: meaning,
-        createdAt: new Date().toISOString()
-      };
+        updatedAt: new Date().toISOString()
+    };
 
-      items.unshift(newItem);
+    if (existingIndex >= 0) {
+        data[existingIndex] = newItem;
+    } else {
+        data.push(newItem);
+    }
 
-      try {
-        saveData(items);
-
+    try {
+        setStoredData(data);
         dataContent.value = "";
         dataMeaning.value = "";
-
-        setTerminalStatus("데이터를 저장했습니다.");
-
         renderDataList();
-        dataContent.focus();
+    } catch (error) {
+        alert("저장하지 못했습니다. 브라우저 저장 공간을 확인해 주세요.");
+    }
+});
 
-      } catch (error) {
-        setTerminalStatus(
-          "저장에 실패했습니다. 브라우저 저장 공간을 확인하세요."
-        );
-      }
-    });
+/* 저장 데이터 목록 표시 */
 
+function renderDataList() {
+    const data = getStoredData();
+    dataList.replaceChildren();
 
-    /* =========================
-       8. 데이터 목록 표시
-    ========================= */
-
-    function renderDataList() {
-      const items = loadData();
-
-      dataList.replaceChildren();
-
-      if (items.length === 0) {
-        const empty = document.createElement("div");
-
-        empty.className = "empty-list";
+    if (data.length === 0) {
+        const empty = document.createElement("p");
+        empty.style.color = "var(--muted)";
+        empty.style.fontSize = "13px";
         empty.textContent = "저장된 데이터가 없습니다.";
-
         dataList.appendChild(empty);
         return;
-      }
+    }
 
-      items.forEach(function(item) {
-        const container = document.createElement("article");
-        container.className = "data-item";
+    data.slice().reverse().forEach(item => {
+        const card = document.createElement("div");
+        card.className = "data-item";
 
-        const top = document.createElement("div");
-        top.className = "data-item-top";
-
-        const type = document.createElement("span");
-        type.className = "data-type";
-
-        const typeNames = {
-          word: "단어",
-          sentence: "문장",
-          knowledge: "지식"
-        };
-
-        type.textContent = typeNames[item.type] || item.type;
-
-        const deleteButton = document.createElement("button");
-
-        deleteButton.className = "delete-button";
-        deleteButton.type = "button";
-        deleteButton.textContent = "삭제";
-
-        deleteButton.addEventListener("click", function() {
-          deleteData(item.id);
-        });
-
-        top.append(type, deleteButton);
+        const typeLabel = document.createElement("strong");
+        typeLabel.textContent = item.type.toUpperCase();
 
         const content = document.createElement("p");
-        content.className = "data-content";
-        content.textContent = item.content;
+        content.textContent = "CONTENT: " + item.content;
 
         const meaning = document.createElement("p");
-        meaning.className = "data-meaning";
-        meaning.textContent = item.meaning || "설명 없음";
+        meaning.textContent = "MEANING: " + item.meaning;
 
-        container.append(top, content, meaning);
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "action-button";
+        deleteButton.textContent = "DELETE";
 
-        dataList.appendChild(container);
-      });
-    }
+        deleteButton.addEventListener("click", function() {
+            const currentData = getStoredData();
+            const index = currentData.findIndex(entry =>
+                entry.type === item.type &&
+                entry.content === item.content &&
+                entry.meaning === item.meaning
+            );
 
-    function deleteData(id) {
-      const items = loadData().filter(function(item) {
-        return item.id !== id;
-      });
+            if (index !== -1) {
+                currentData.splice(index, 1);
+                setStoredData(currentData);
+                renderDataList();
+            }
+        });
 
-      try {
-        saveData(items);
-        renderDataList();
-
-        setTerminalStatus("데이터를 삭제했습니다.");
-
-      } catch (error) {
-        setTerminalStatus("삭제에 실패했습니다.");
-      }
-    }
-
-
-    /* =========================
-       9. JSON 내보내기
-    ========================= */
-
-    document
-      .getElementById("export-button")
-      .addEventListener("click", function() {
-        const items = loadData();
-
-        const blob = new Blob(
-          [JSON.stringify(items, null, 2)],
-          {
-            type: "application/json;charset=utf-8"
-          }
-        );
-
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-
-        link.href = url;
-        link.download = "bps-data.json";
-
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-
-        setTimeout(function() {
-          URL.revokeObjectURL(url);
-        }, 1000);
-
-        setTerminalStatus(
-          "JSON 파일 내보내기를 요청했습니다."
-        );
-      });
-
-
-    /* =========================
-       10. 터미널 기능
-    ========================= */
-
-    function printConsole(text) {
-      const line = document.createElement("div");
-
-      line.className = "console-line";
-      line.textContent = text;
-
-      consoleOutput.appendChild(line);
-
-      consoleOutput.scrollTop =
-        consoleOutput.scrollHeight;
-    }
-
-    function openConsole() {
-      consoleOutput.replaceChildren();
-
-      printConsole("BPS AI Console");
-      printConsole("터미널 인터페이스가 시작되었습니다.");
-      printConsole("사용 가능한 명령어: help, clear, data");
-      printConsole("");
-
-      openOverlay(consoleOverlay, consoleInput);
-    }
-
-    consoleForm.addEventListener("submit", function(event) {
-      event.preventDefault();
-
-      const command = consoleInput.value.trim().toLowerCase();
-
-      if (!command) {
-        return;
-      }
-
-      printConsole("> " + command);
-
-      consoleInput.value = "";
-
-      if (command === "help") {
-        printConsole("help  - 사용 가능한 명령어");
-        printConsole("clear - 터미널 화면 지우기");
-        printConsole("data  - 저장된 데이터 개수 확인");
-
-      } else if (command === "clear") {
-        consoleOutput.replaceChildren();
-
-      } else if (command === "data") {
-        printConsole(
-          "저장된 데이터: " + loadData().length + "개"
-        );
-
-      } else {
-        printConsole(
-          "알 수 없는 명령어입니다. help를 입력하세요."
-        );
-      }
+        card.append(typeLabel, content, meaning, deleteButton);
+        dataList.appendChild(card);
     });
-  </script>
+}
+
+/* JSON 내보내기 */
+
+document.getElementById("export-data-button").addEventListener("click", function() {
+    const data = getStoredData();
+
+    const blob = new Blob(
+        [JSON.stringify(data, null, 2)],
+        { type: "application/json" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "bps-data.json";
+    link.click();
+
+    setTimeout(function() {
+        URL.revokeObjectURL(url);
+    }, 1000);
+});
+
+/* 터미널 명령어 */
+
+function writeTerminal(text) {
+    terminalOutput.textContent += "\n" + text;
+    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+}
+
+terminalInput.addEventListener("keydown", function(event) {
+    if (event.key !== "Enter") {
+        return;
+    }
+
+    const command = terminalInput.value.trim();
+    terminalInput.value = "";
+
+    if (!command) {
+        return;
+    }
+
+    if (command === "clear") {
+        terminalOutput.textContent = "BPS CONSOLE READY";
+        return;
+    }
+
+    if (command === "help") {
+        writeTerminal("help - 명령어 목록");
+        writeTerminal("clear - 화면 지우기");
+        writeTerminal("data - 저장된 데이터 개수 확인");
+        return;
+    }
+
+    if (command === "data") {
+        writeTerminal("저장된 데이터: " + getStoredData().length + "개");
+        return;
+    }
+
+    writeTerminal("알 수 없는 명령어: " + command);
+});
+
+/* 페이지 처음 열릴 때 */
+
+showWelcome();
+</script>
 
 </body>
 </html>
