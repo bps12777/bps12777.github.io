@@ -292,6 +292,7 @@ data - 저장된 데이터 개수 확인</div>
     </section>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const searchInput = document.getElementById("search");
 const chatbox = document.getElementById("chatbox");
@@ -310,6 +311,106 @@ const terminalOutput = document.getElementById("terminal-output");
 const terminalInput = document.getElementById("terminal-input");
 const STORAGE_KEY = "BUPSENT_DATA_V1";
 const PASSWORD = "3868";
+
+/* Supabase 연결 정보: 아래 두 값만 본인 프로젝트 값으로 바꾼다. */
+const SUPABASE_URL = "여기에_Project_URL_입력";
+const SUPABASE_PUBLISHABLE_KEY = "여기에_Publishable_Key_입력";
+let bpsSupabase = null;
+let supabaseReady = false;
+try {
+    if (window.supabase && SUPABASE_URL.startsWith("https://") &&
+        !SUPABASE_URL.includes("여기에_") && SUPABASE_PUBLISHABLE_KEY &&
+        !SUPABASE_PUBLISHABLE_KEY.includes("여기에_")) {
+        bpsSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+        supabaseReady = true;
+    }
+} catch (error) {
+    console.error("Supabase 초기화 실패:", error);
+}
+
+function remoteRowToRecord(row) {
+    const now = row.created_at || new Date().toISOString();
+    return {
+        id: "SB-" + row.id,
+        type: "knowledge",
+        content: row.subject || "",
+        meaning: row.object || "",
+        subject: row.subject || "",
+        predicate: row.predicate || "",
+        object: row.object || "",
+        aliases: [],
+        source: "supabase",
+        createdAt: now,
+        updatedAt: now,
+        remoteId: row.id
+    };
+}
+function recordKey(record) {
+    return [record.type || "knowledge", normalize(record.subject || record.content),
+        normalize(record.predicate), normalize(record.object || record.meaning)].join("|");
+}
+async function fetchRemoteKnowledge() {
+    if (!supabaseReady) return [];
+    const { data, error } = await bpsSupabase.from("bps_knowledge")
+        .select("id, subject, predicate, object, created_at").order("id", {ascending: true});
+    if (error) throw error;
+    return (data || []).map(remoteRowToRecord);
+}
+async function uploadRecordToSupabase(record) {
+    if (!supabaseReady || (record.type || "knowledge") !== "knowledge") return;
+    const subject = String(record.subject || record.content || "").trim();
+    const predicate = String(record.predicate || "").trim();
+    const object = String(record.object || record.meaning || "").trim();
+    if (!subject || !predicate || !object) return;
+    const { data: existing, error: lookupError } = await bpsSupabase.from("bps_knowledge")
+        .select("id").eq("subject", subject).eq("predicate", predicate).eq("object", object).limit(1);
+    if (lookupError) throw lookupError;
+    if (existing && existing.length) return;
+    const { error } = await bpsSupabase.from("bps_knowledge").insert({subject, predicate, object});
+    if (error) throw error;
+}
+async function deleteRecordFromSupabase(record) {
+    if (!supabaseReady || record.source === "legacy" && !record.remoteId) return;
+    const subject = String(record.subject || record.content || "").trim();
+    const predicate = String(record.predicate || "").trim();
+    const object = String(record.object || record.meaning || "").trim();
+    if (!subject || !predicate || !object) return;
+    const { error } = await bpsSupabase.from("bps_knowledge").delete()
+        .eq("subject", subject).eq("predicate", predicate).eq("object", object);
+    if (error) throw error;
+}
+async function syncSupabaseData() {
+    if (!supabaseReady) return;
+    try {
+        const remote = await fetchRemoteKnowledge();
+        const local = getStoredData();
+        const known = new Set(local.map(recordKey));
+        for (const record of remote) {
+            const key = recordKey(record);
+            if (!known.has(key)) { local.push(record); known.add(key); }
+        }
+        setStoredData(local);
+        // 기존 브라우저 지식도 Supabase로 옮겨 공유되도록 한다.
+        for (const record of local) {
+            if (record.type === "knowledge" && record.source !== "supabase") {
+                try { await uploadRecordToSupabase(record); }
+                catch (error) { console.error("지식 업로드 실패:", error); }
+            }
+        }
+        // 업로드한 레코드까지 포함해 다시 동기화한다.
+        const refreshed = await fetchRemoteKnowledge();
+        const refreshedKeys = new Set(getStoredData().map(recordKey));
+        const merged = getStoredData();
+        for (const record of refreshed) {
+            const key = recordKey(record);
+            if (!refreshedKeys.has(key)) { merged.push(record); refreshedKeys.add(key); }
+        }
+        setStoredData(merged);
+        if (dataOverlay.classList.contains("active")) renderDataList();
+    } catch (error) {
+        console.error("Supabase 동기화 실패:", error);
+    }
+}
 let pendingDestination = "";
 let lastFocusedElement = null;
 
@@ -575,7 +676,7 @@ function clearDataForm() {
 }
 
 document.getElementById("clear-data-form-button").addEventListener("click", clearDataForm);
-document.getElementById("save-data-button").addEventListener("click", function() {
+document.getElementById("save-data-button").addEventListener("click", async function() {
     const content = dataContent.value.trim();
     const predicate = dataPredicate.value.trim();
     const meaning = dataMeaning.value.trim();
@@ -595,6 +696,15 @@ document.getElementById("save-data-button").addEventListener("click", function()
         });
         if (!result.existed) clearDataForm();
         renderDataList();
+        if (supabaseReady && type === "knowledge") {
+            try {
+                await uploadRecordToSupabase(result.record);
+                await syncSupabaseData();
+            } catch (error) {
+                console.error("Supabase 저장 실패:", error);
+                alert("브라우저에는 저장했지만 Supabase 저장에 실패했습니다. Supabase 권한과 연결 정보를 확인해 주세요.");
+            }
+        }
         if (result.existed) alert("이미 저장된 데이터입니다.");
     } catch (error) {
         alert("저장하지 못했습니다. 브라우저 저장 공간을 확인해 주세요.");
@@ -644,10 +754,19 @@ function renderDataList() {
         remove.className = "action-button record-delete";
         remove.type = "button";
         remove.textContent = "DELETE";
-        remove.addEventListener("click", function() {
+        remove.addEventListener("click", async function() {
             const current = getStoredData();
             const index = current.findIndex(entry => entry.id === item.id);
             if (index !== -1) {
+                const target = current[index];
+                if (supabaseReady && target.type === "knowledge") {
+                    try { await deleteRecordFromSupabase(target); }
+                    catch (error) {
+                        console.error("Supabase 삭제 실패:", error);
+                        alert("Supabase에서 삭제하지 못했습니다. 권한 설정을 확인해 주세요.");
+                        return;
+                    }
+                }
                 current.splice(index, 1);
                 setStoredData(current);
                 renderDataList();
@@ -705,6 +824,15 @@ document.getElementById("import-data-file").addEventListener("change", async fun
         });
         setStoredData(current);
         renderDataList();
+        if (supabaseReady) {
+            for (const record of current) {
+                if (record.type === "knowledge" && record.source !== "supabase") {
+                    try { await uploadRecordToSupabase(record); }
+                    catch (error) { console.error("가져온 데이터 업로드 실패:", error); }
+                }
+            }
+            await syncSupabaseData();
+        }
         alert("IMPORT COMPLETE · " + added);
     } catch (error) {
         alert("JSON 파일을 읽지 못했습니다.");
@@ -742,6 +870,7 @@ terminalInput.addEventListener("keydown", function(event) {
 });
 
 showWelcome();
+syncSupabaseData();
 </script>
 </body>
 </html>
