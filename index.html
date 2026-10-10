@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -8,10 +7,6 @@
   <title>BUPSENT</title>
 
   <style>
-    /* =========================
-       1. 기본 설정
-    ========================= */
-
     :root {
       --bg: #03070c;
       --panel: #08121b;
@@ -56,29 +51,29 @@
     }
 
     button,
-    textarea {
+    textarea,
+    input,
+    select {
       font: inherit;
     }
 
     button {
       -webkit-tap-highlight-color: transparent;
+      cursor: pointer;
     }
 
-    /* =========================
-       2. 전체 레이아웃
-    ========================= */
+    /* 1. 전체 레이아웃 */
 
     #system {
       width: 100%;
       max-width: 430px;
+
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
-    /* =========================
-       3. 제목
-    ========================= */
+    /* 2. 제목 */
 
     #title {
       margin: 40px 0 8px;
@@ -105,7 +100,6 @@
       text-align: center;
     }
 
-    /* 얇은 장식선 */
     #accent-line {
       width: 48px;
       height: 2px;
@@ -122,12 +116,11 @@
       box-shadow: 0 0 12px rgba(66, 245, 239, 0.4);
     }
 
-    /* =========================
-       4. 입력 영역
-    ========================= */
+    /* 3. 입력 영역 */
 
     #input-area {
       width: 100%;
+
       display: flex;
       align-items: flex-end;
       gap: 9px;
@@ -176,9 +169,7 @@
         0 0 18px rgba(66, 245, 239, 0.07);
     }
 
-    /* =========================
-       5. 전송 버튼
-    ========================= */
+    /* 4. 전송 버튼 */
 
     #starting-button {
       width: 50px;
@@ -204,8 +195,6 @@
         0 0 14px rgba(66, 245, 239, 0.09),
         inset 0 0 10px rgba(66, 245, 239, 0.04);
 
-      cursor: pointer;
-
       transition:
         transform 0.18s,
         border-color 0.18s,
@@ -227,9 +216,7 @@
       height: 21px;
     }
 
-    /* =========================
-       6. 채팅창
-    ========================= */
+    /* 5. 채팅창 */
 
     #chatbox {
       width: 100%;
@@ -270,9 +257,7 @@
         inset 0 0 24px rgba(66, 245, 239, 0.018);
     }
 
-    /* =========================
-       7. 시작 화면
-    ========================= */
+    /* 6. 시작 화면 */
 
     #welcome {
       width: 100%;
@@ -303,9 +288,7 @@
       letter-spacing: 2px;
     }
 
-    /* =========================
-       8. 공통 말풍선
-    ========================= */
+    /* 7. 채팅 말풍선 */
 
     #chatbox p.message {
       width: fit-content;
@@ -319,12 +302,10 @@
 
       white-space: pre-wrap;
       overflow-wrap: anywhere;
-      word-break: normal;
 
       animation: messageAppear 0.22s ease-out;
     }
 
-    /* 사용자 말풍선 */
     #chatbox p.user {
       align-self: flex-end;
 
@@ -336,12 +317,8 @@
 
       border: 1px solid rgba(66, 245, 239, 0.38);
       border-radius: 15px 15px 4px 15px;
-
-      box-shadow:
-        0 0 13px rgba(66, 245, 239, 0.035);
     }
 
-    /* AI 말풍선 */
     #chatbox p.ai {
       align-self: flex-start;
 
@@ -355,13 +332,364 @@
       border-radius: 15px 15px 15px 4px;
 
       box-shadow:
-        inset 2px 0 0 rgba(167, 139, 250, 0.22),
-        0 0 13px rgba(167, 139, 250, 0.035);
+        inset 2px 0 0 rgba(167, 139, 250, 0.22);
     }
 
-    /* =========================
-       9. 애니메이션
-    ========================= */
+    /* 8. 데이터 콘솔 배경 */
+
+    #data-console {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+
+      padding: 20px 14px;
+
+      display: none;
+      justify-content: center;
+      align-items: center;
+
+      background: rgba(0, 3, 8, 0.82);
+      backdrop-filter: blur(7px);
+      -webkit-backdrop-filter: blur(7px);
+    }
+
+    #data-console.open {
+      display: flex;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    /* 9. 터미널 창 */
+
+    #terminal {
+      width: 100%;
+      max-width: 480px;
+      max-height: 85vh;
+      overflow: hidden;
+
+      display: flex;
+      flex-direction: column;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(5, 17, 25, 0.99),
+          rgba(2, 7, 13, 0.99)
+        );
+
+      border: 1px solid rgba(66, 245, 239, 0.65);
+      border-radius: 12px;
+
+      box-shadow:
+        0 0 25px rgba(66, 245, 239, 0.13),
+        0 0 80px rgba(58, 156, 255, 0.07),
+        inset 0 0 25px rgba(66, 245, 239, 0.025);
+
+      animation: terminalAppear 0.25s ease-out;
+    }
+
+    /* 터미널 제목 표시줄 */
+
+    #terminal-header {
+      min-height: 43px;
+      padding: 0 13px;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+
+      background: rgba(66, 245, 239, 0.055);
+      border-bottom: 1px solid rgba(66, 245, 239, 0.22);
+    }
+
+    #terminal-brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+
+      color: var(--cyan);
+      font-family: monospace;
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    #terminal-dots {
+      display: flex;
+      gap: 5px;
+    }
+
+    #terminal-dots span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 7px rgba(66, 245, 239, 0.6);
+    }
+
+    #terminal-close {
+      width: 29px;
+      height: 29px;
+
+      color: var(--cyan);
+      background: transparent;
+
+      border: 1px solid rgba(66, 245, 239, 0.3);
+      border-radius: 6px;
+
+      font-size: 17px;
+    }
+
+    #terminal-close:hover {
+      color: white;
+      background: rgba(255, 60, 90, 0.18);
+      border-color: #ff5470;
+    }
+
+    /* 터미널 내부 */
+
+    #terminal-body {
+      padding: 17px;
+      overflow-y: auto;
+
+      scrollbar-width: thin;
+      scrollbar-color: #235d68 transparent;
+    }
+
+    .terminal-label {
+      margin: 0 0 9px;
+
+      color: var(--cyan);
+      font-family: monospace;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+    }
+
+    #terminal-description {
+      margin: 0 0 15px;
+
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    #terminal-status {
+      margin: 0 0 17px;
+      padding: 10px;
+
+      color: #9edbd7;
+      background: rgba(66, 245, 239, 0.035);
+
+      border-left: 2px solid var(--cyan);
+
+      font-family: monospace;
+      font-size: 11px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    /* 데이터 입력 폼 */
+
+    .data-field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 13px;
+    }
+
+    .data-field label {
+      color: #a4c6d5;
+      font-family: monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+
+    .data-field input,
+    .data-field select {
+      width: 100%;
+      min-height: 43px;
+      padding: 10px 12px;
+
+      color: var(--text);
+      background: #061019;
+
+      border: 1px solid rgba(66, 245, 239, 0.25);
+      border-radius: 7px;
+      outline: none;
+
+      font-size: 13px;
+    }
+
+    .data-field input:focus,
+    .data-field select:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px rgba(66, 245, 239, 0.08);
+    }
+
+    .data-field input::placeholder {
+      color: #536d7b;
+    }
+
+    .data-field select option {
+      color: var(--text);
+      background: #061019;
+    }
+
+    /* 콘솔 버튼 */
+
+    .terminal-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .terminal-button {
+      min-height: 39px;
+      padding: 9px 12px;
+
+      color: var(--cyan);
+      background: rgba(66, 245, 239, 0.055);
+
+      border: 1px solid rgba(66, 245, 239, 0.4);
+      border-radius: 7px;
+
+      font-size: 12px;
+
+      transition:
+        background 0.2s,
+        box-shadow 0.2s;
+    }
+
+    .terminal-button:hover {
+      background: rgba(66, 245, 239, 0.13);
+      box-shadow: 0 0 12px rgba(66, 245, 239, 0.08);
+    }
+
+    .terminal-button.primary {
+      color: #021014;
+      background: var(--cyan);
+      border-color: var(--cyan);
+      font-weight: bold;
+    }
+
+    .terminal-button.primary:hover {
+      background: #8ffff9;
+    }
+
+    .terminal-button.danger {
+      color: #ff8da0;
+      border-color: rgba(255, 84, 112, 0.4);
+      background: rgba(255, 84, 112, 0.05);
+    }
+
+    /* 저장된 데이터 목록 */
+
+    #data-list-section {
+      margin-top: 22px;
+      padding-top: 16px;
+
+      border-top: 1px solid rgba(66, 245, 239, 0.2);
+    }
+
+    #data-count {
+      margin-bottom: 11px;
+
+      color: var(--muted);
+      font-family: monospace;
+      font-size: 11px;
+    }
+
+    #data-list {
+      max-height: 190px;
+      overflow-y: auto;
+
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .data-item {
+      padding: 10px;
+
+      background: rgba(66, 245, 239, 0.035);
+      border: 1px solid rgba(66, 245, 239, 0.13);
+      border-radius: 7px;
+
+      overflow-wrap: anywhere;
+    }
+
+    .data-item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+
+    .data-item-type {
+      color: var(--cyan);
+      font-family: monospace;
+      font-size: 10px;
+    }
+
+    .data-item-id {
+      color: #536d7b;
+      font-family: monospace;
+      font-size: 10px;
+    }
+
+    .data-item-word {
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.6;
+    }
+
+    .data-item-meaning {
+      margin-top: 4px;
+
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .data-item-delete {
+      margin-top: 9px;
+      padding: 5px 8px;
+
+      color: #ff8da0;
+      background: transparent;
+      border: 1px solid rgba(255, 84, 112, 0.3);
+      border-radius: 5px;
+
+      font-size: 10px;
+    }
+
+    #empty-data {
+      padding: 20px 8px;
+
+      color: #607b89;
+      font-size: 12px;
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    #terminal-footer {
+      padding: 10px 15px;
+
+      color: #55727f;
+      background: rgba(66, 245, 239, 0.025);
+      border-top: 1px solid rgba(66, 245, 239, 0.12);
+
+      font-family: monospace;
+      font-size: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    /* 10. 애니메이션 */
 
     @keyframes messageAppear {
       from {
@@ -375,9 +703,24 @@
       }
     }
 
-    /* =========================
-       10. 작은 화면 대응
-    ========================= */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes terminalAppear {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* 11. 작은 화면 대응 */
 
     @media (max-width: 400px) {
       body {
@@ -402,9 +745,20 @@
         max-width: 92%;
         font-size: 13px;
       }
+
+      #data-console {
+        padding: 12px 9px;
+      }
+
+      #terminal {
+        max-height: 88vh;
+      }
+
+      #terminal-body {
+        padding: 13px;
+      }
     }
 
-    /* 움직임 줄이기 설정 */
     @media (prefers-reduced-motion: reduce) {
       *,
       *::before,
@@ -461,75 +815,596 @@
         <strong>BUPSENT INTERFACE</strong>
         <br>
         SYSTEM READY
+        <br>
+        <br>
+        TYPE /bps data TO OPEN DATA CONSOLE
       </div>
 
     </div>
 
   </main>
 
+  <!-- BPS DATA CONSOLE -->
+
+  <div
+    id="data-console"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="terminal-title"
+    aria-hidden="true"
+  >
+
+    <section id="terminal">
+
+      <header id="terminal-header">
+
+        <div id="terminal-brand">
+          <div id="terminal-dots" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+
+          <span id="terminal-title">BPS DATA CONSOLE</span>
+        </div>
+
+        <button
+          type="button"
+          id="terminal-close"
+          aria-label="콘솔 닫기"
+        >×</button>
+
+      </header>
+
+      <div id="terminal-body">
+
+        <p class="terminal-label">[ DATA STORAGE SYSTEM ]</p>
+
+        <p id="terminal-description">
+          BPS AI DATA MANAGEMENT INTERFACE<br>
+          단어와 뜻을 입력한 뒤 저장하세요.
+        </p>
+
+        <div id="terminal-status" role="status" aria-live="polite">
+          &gt; SYSTEM INITIALIZED
+          &gt; STORAGE: LOCAL BROWSER
+        </div>
+
+        <form id="data-form">
+
+          <div class="data-field">
+
+            <label for="data-type">DATA TYPE</label>
+
+            <select id="data-type">
+              <option value="word">WORD / 단어</option>
+              <option value="sentence">SENTENCE / 문장</option>
+              <option value="knowledge">KNOWLEDGE / 지식</option>
+            </select>
+
+          </div>
+
+          <div class="data-field">
+
+            <label for="data-content">CONTENT / 내용</label>
+
+            <input
+              id="data-content"
+              type="text"
+              maxlength="2000"
+              placeholder="예: 고양이"
+              autocomplete="off"
+              required
+            >
+
+          </div>
+
+          <div class="data-field">
+
+            <label for="data-meaning">MEANING / 뜻 또는 설명</label>
+
+            <input
+              id="data-meaning"
+              type="text"
+              maxlength="5000"
+              placeholder="예: 고양잇과의 동물"
+              autocomplete="off"
+            >
+
+          </div>
+
+          <div class="terminal-actions">
+
+            <button
+              type="submit"
+              class="terminal-button primary"
+            >SAVE DATA</button>
+
+            <button
+              type="button"
+              class="terminal-button"
+              id="refresh-data"
+            >REFRESH LIST</button>
+
+            <button
+              type="button"
+              class="terminal-button"
+              id="export-data"
+            >EXPORT JSON</button>
+
+          </div>
+
+        </form>
+
+        <section id="data-list-section">
+
+          <p class="terminal-label">[ STORED DATA ]</p>
+
+          <div id="data-count">RECORDS: 0</div>
+
+          <div id="data-list"></div>
+
+        </section>
+
+      </div>
+
+      <footer id="terminal-footer">
+        BUPSENT // DATA MODULE // LOCAL STORAGE
+      </footer>
+
+    </section>
+
+  </div>
+
   <script>
-    /* =========================
+    /* =====================================
        1. HTML 요소 연결
-    ========================= */
+    ===================================== */
 
     const search = document.getElementById("search");
     const button = document.getElementById("starting-button");
     const chatbox = document.getElementById("chatbox");
     const welcome = document.getElementById("welcome");
 
-    /* =========================
-       2. 메시지 생성
-    ========================= */
+    const dataConsole = document.getElementById("data-console");
+    const terminalClose = document.getElementById("terminal-close");
+    const terminalStatus = document.getElementById("terminal-status");
+
+    const dataForm = document.getElementById("data-form");
+    const dataType = document.getElementById("data-type");
+    const dataContent = document.getElementById("data-content");
+    const dataMeaning = document.getElementById("data-meaning");
+
+    const dataCount = document.getElementById("data-count");
+    const dataList = document.getElementById("data-list");
+
+    const refreshDataButton = document.getElementById("refresh-data");
+    const exportDataButton = document.getElementById("export-data");
+
+    const STORAGE_KEY = "BUPSENT_DATA_V1";
+
+    let previousFocus = null;
+
+    /* =====================================
+       2. 채팅 메시지 생성
+    ===================================== */
 
     function addMessage(text, type) {
+      if (welcome.isConnected) {
+        welcome.remove();
+      }
+
       const message = document.createElement("p");
 
       message.classList.add("message", type);
       message.textContent = text;
 
-      /* 새 메시지를 맨 위에 추가 */
       chatbox.prepend(message);
 
       return message;
     }
 
-    /* =========================
+    /* =====================================
        3. 입력창 크기 조절
-    ========================= */
+    ===================================== */
 
     function resizeInput() {
       search.style.height = "auto";
 
       const newHeight = Math.min(search.scrollHeight, 120);
+
       search.style.height = newHeight + "px";
+
       search.style.overflowY =
         search.scrollHeight > 120 ? "auto" : "hidden";
     }
 
     search.addEventListener("input", resizeInput);
 
-    /* =========================
-       4. 메시지 전송
-    ========================= */
+    /* =====================================
+       4. 데이터 불러오기
+    ===================================== */
+
+    function loadData() {
+      try {
+        const rawData = localStorage.getItem(STORAGE_KEY);
+
+        if (!rawData) {
+          return [];
+        }
+
+        const parsedData = JSON.parse(rawData);
+
+        if (!Array.isArray(parsedData)) {
+          return [];
+        }
+
+        return parsedData.filter(item =>
+          item &&
+          typeof item.id === "number" &&
+          typeof item.type === "string" &&
+          typeof item.content === "string" &&
+          typeof item.meaning === "string"
+        );
+
+      } catch (error) {
+        console.error("데이터 불러오기 오류:", error);
+        return [];
+      }
+    }
+
+    /* =====================================
+       5. 데이터 저장
+    ===================================== */
+
+    function saveDataList(list) {
+      try {
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify(list)
+        );
+
+        return true;
+
+      } catch (error) {
+        console.error("데이터 저장 오류:", error);
+
+        setTerminalStatus(
+          "> ERROR: DATA SAVE FAILED\n" +
+          "> 브라우저 저장 공간 또는 권한을 확인하세요."
+        );
+
+        return false;
+      }
+    }
+
+    /* =====================================
+       6. 콘솔 상태 메시지
+    ===================================== */
+
+    function setTerminalStatus(text) {
+      terminalStatus.textContent = text;
+    }
+
+    /* =====================================
+       7. 데이터 콘솔 열기
+    ===================================== */
+
+    function openDataConsole() {
+      previousFocus = document.activeElement;
+
+      dataConsole.classList.add("open");
+      dataConsole.setAttribute("aria-hidden", "false");
+
+      refreshDataList();
+
+      setTerminalStatus(
+        "> BPS DATA CONSOLE ONLINE\n" +
+        "> STORAGE: LOCAL BROWSER\n" +
+        "> READY TO RECEIVE DATA"
+      );
+
+      dataContent.focus();
+    }
+
+    /* =====================================
+       8. 데이터 콘솔 닫기
+    ===================================== */
+
+    function closeDataConsole() {
+      dataConsole.classList.remove("open");
+      dataConsole.setAttribute("aria-hidden", "true");
+
+      if (previousFocus && typeof previousFocus.focus === "function") {
+        previousFocus.focus();
+      } else {
+        search.focus();
+      }
+    }
+
+    terminalClose.addEventListener("click", closeDataConsole);
+
+    /* 배경을 눌렀을 때 닫기 */
+
+    dataConsole.addEventListener("click", function(event) {
+      if (event.target === dataConsole) {
+        closeDataConsole();
+      }
+    });
+
+    /* ESC 키로 닫기 */
+
+    document.addEventListener("keydown", function(event) {
+      if (
+        event.key === "Escape" &&
+        dataConsole.classList.contains("open")
+      ) {
+        closeDataConsole();
+      }
+    });
+
+    /* =====================================
+       9. 데이터 목록 표시
+    ===================================== */
+
+    function refreshDataList() {
+      const records = loadData();
+
+      dataCount.textContent = "RECORDS: " + records.length;
+
+      dataList.replaceChildren();
+
+      if (records.length === 0) {
+        const empty = document.createElement("div");
+
+        empty.id = "empty-data";
+
+        empty.textContent =
+          "아직 저장된 데이터가 없습니다.\n" +
+          "위 입력창에서 첫 번째 데이터를 추가하세요.";
+
+        dataList.appendChild(empty);
+
+        return;
+      }
+
+      /* 최신 데이터를 먼저 표시 */
+
+      const latestRecords = [...records].reverse();
+
+      latestRecords.forEach(function(record) {
+        const item = document.createElement("article");
+        item.className = "data-item";
+
+        const top = document.createElement("div");
+        top.className = "data-item-top";
+
+        const type = document.createElement("span");
+        type.className = "data-item-type";
+
+        type.textContent =
+          record.type.toUpperCase();
+
+        const id = document.createElement("span");
+        id.className = "data-item-id";
+
+        id.textContent = "ID: " + record.id;
+
+        top.append(type, id);
+
+        const content = document.createElement("div");
+        content.className = "data-item-word";
+        content.textContent = record.content;
+
+        item.append(top, content);
+
+        if (record.meaning) {
+          const meaning = document.createElement("div");
+
+          meaning.className = "data-item-meaning";
+          meaning.textContent = record.meaning;
+
+          item.appendChild(meaning);
+        }
+
+        const deleteButton = document.createElement("button");
+
+        deleteButton.type = "button";
+        deleteButton.className = "data-item-delete";
+        deleteButton.textContent = "DELETE";
+
+        deleteButton.addEventListener("click", function() {
+          deleteRecord(record.id);
+        });
+
+        item.appendChild(deleteButton);
+
+        dataList.appendChild(item);
+      });
+    }
+
+    /* =====================================
+       10. 새 데이터 추가
+    ===================================== */
+
+    dataForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const type = dataType.value;
+      const content = dataContent.value.trim();
+      const meaning = dataMeaning.value.trim();
+
+      if (!content) {
+        setTerminalStatus(
+          "> ERROR: CONTENT IS EMPTY"
+        );
+
+        dataContent.focus();
+
+        return;
+      }
+
+      const records = loadData();
+
+      /* 같은 종류와 내용의 중복 데이터 확인 */
+
+      const duplicate = records.some(record =>
+        record.type === type &&
+        record.content.toLowerCase() === content.toLowerCase()
+      );
+
+      if (duplicate) {
+        setTerminalStatus(
+          "> WARNING: DUPLICATE DATA\n" +
+          "> 같은 종류와 내용의 데이터가 이미 존재합니다."
+        );
+
+        return;
+      }
+
+      const nextId = records.reduce(
+        (maxId, record) => Math.max(maxId, record.id),
+        0
+      ) + 1;
+
+      const newRecord = {
+        id: nextId,
+        type: type,
+        content: content,
+        meaning: meaning,
+        createdAt: new Date().toISOString()
+      };
+
+      records.push(newRecord);
+
+      if (!saveDataList(records)) {
+        return;
+      }
+
+      refreshDataList();
+
+      setTerminalStatus(
+        "> DATA SAVED SUCCESSFULLY\n" +
+        "> ID: " + nextId + "\n" +
+        "> TYPE: " + type.toUpperCase()
+      );
+
+      dataContent.value = "";
+      dataMeaning.value = "";
+
+      dataContent.focus();
+    });
+
+    /* =====================================
+       11. 데이터 삭제
+    ===================================== */
+
+    function deleteRecord(id) {
+      const confirmed = confirm(
+        "ID " + id + " 데이터를 삭제할까요?"
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      const records = loadData();
+
+      const updatedRecords = records.filter(
+        record => record.id !== id
+      );
+
+      if (!saveDataList(updatedRecords)) {
+        return;
+      }
+
+      refreshDataList();
+
+      setTerminalStatus(
+        "> DATA DELETED\n" +
+        "> ID: " + id
+      );
+    }
+
+    /* =====================================
+       12. JSON 파일로 내보내기
+    ===================================== */
+
+    exportDataButton.addEventListener("click", function() {
+      const records = loadData();
+
+      const jsonText = JSON.stringify(
+        records,
+        null,
+        2
+      );
+
+      const blob = new Blob(
+        [jsonText],
+        { type: "application/json;charset=utf-8" }
+      );
+
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = "words.json";
+
+      document.body.appendChild(link);
+
+      link.click();
+      link.remove();
+
+      URL.revokeObjectURL(url);
+
+      setTerminalStatus(
+        "> EXPORT COMPLETED\n" +
+        "> FILE: words.json\n" +
+        "> RECORDS: " + records.length
+      );
+    });
+
+    /* =====================================
+       13. 목록 새로고침
+    ===================================== */
+
+    refreshDataButton.addEventListener("click", function() {
+      refreshDataList();
+
+      setTerminalStatus(
+        "> DATA LIST REFRESHED\n" +
+        "> RECORDS: " + loadData().length
+      );
+    });
+
+    /* =====================================
+       14. 메시지 전송
+    ===================================== */
 
     function askAI() {
       const text = search.value.trim();
 
-      /* 빈 메시지는 보내지 않음 */
       if (text === "") {
         search.focus();
         return;
       }
 
-      /* 첫 메시지 전송 시 시작 안내 제거 */
-      if (welcome.isConnected) {
-        welcome.remove();
+      /* 명령어는 일반 채팅보다 먼저 확인 */
+
+      if (text.toLowerCase() === "/bps data") {
+        search.value = "";
+        resizeInput();
+
+        openDataConsole();
+
+        return;
       }
 
-      /* 사용자 메시지 표시 */
       addMessage(text, "user");
 
-      /* 기존 BPS 응답 기능 유지 */
+      /* 기존 BPS 응답 */
+
       if (text.toLowerCase() === "bps") {
         addMessage(
           "BPS AI 시스템에 접속했습니다.",
@@ -537,23 +1412,20 @@
         );
       }
 
-      /* 입력창 초기화 */
       search.value = "";
       resizeInput();
       search.focus();
 
-      /* 최신 메시지가 있는 맨 위로 이동 */
       chatbox.scrollTop = 0;
     }
 
-    /* =========================
-       5. 버튼 및 키보드 이벤트
-    ========================= */
+    /* =====================================
+       15. 버튼 및 키보드 이벤트
+    ===================================== */
 
     button.addEventListener("click", askAI);
 
     search.addEventListener("keydown", function(event) {
-      /* Enter는 전송, Shift + Enter는 줄바꿈 */
       if (
         event.key === "Enter" &&
         !event.shiftKey &&
