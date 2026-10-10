@@ -11,6 +11,7 @@
     --panel: #08121b;
     --cyan: #42f5ef;
     --blue: #3a9cff;
+    --purple: #a78bfa;
     --text: #e9f7ff;
     --muted: #7f9ba9;
     --line: rgba(66, 245, 239, 0.22);
@@ -39,93 +40,117 @@ button {
     cursor: pointer;
 }
 
-#app {
+/* =========================
+   메인 채팅 화면
+========================= */
+
+#system {
     width: 100%;
     max-width: 430px;
     min-height: 100vh;
-    margin: auto;
-    padding: 28px 18px;
+    margin: 0 auto;
+    padding: 35px 20px 24px;
     display: flex;
     flex-direction: column;
 }
 
-header {
+#header {
     text-align: center;
-    margin: 45px 0 28px;
+    margin: 45px 0 30px;
 }
 
-h1 {
+#title {
+    margin: 0;
     color: var(--cyan);
-    font-size: 38px;
-    margin: 0 0 8px;
+    font-size: 50px;
+    font-weight: bold;
     letter-spacing: 3px;
+    text-shadow: 0 0 18px rgba(66, 245, 239, 0.35);
 }
 
-.subtitle {
+#subtitle {
+    margin-top: 9px;
     color: var(--muted);
     font-size: 11px;
     letter-spacing: 4px;
 }
 
 #chatbox {
+    width: 100%;
+    min-height: 300px;
+    flex: 1;
+    margin: 0 auto 22px;
+    padding: 16px;
+    border: 1px solid var(--cyan);
+    border-radius: 12px;
+    background: rgba(8, 18, 27, 0.7);
+    box-shadow: 0 0 14px rgba(66, 245, 239, 0.06);
     display: flex;
     flex-direction: column;
     gap: 12px;
-    flex: 1;
-    min-height: 200px;
-    padding: 18px 0;
     overflow-wrap: anywhere;
 }
 
 #welcome {
+    margin: auto 0;
     color: var(--muted);
     text-align: center;
-    font-size: 14px;
-    margin: 50px 0;
+    font-size: 13px;
+    line-height: 1.7;
 }
 
 .message {
-    max-width: 88%;
-    padding: 12px 14px;
-    border-radius: 12px;
-    line-height: 1.5;
+    max-width: 95%;
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 9px;
+    line-height: 1.6;
+    font-size: 14px;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
 }
 
 .message.user {
     align-self: flex-end;
-    background: #102c36;
-    border: 1px solid var(--line);
+    color: var(--text);
+    background: rgba(58, 156, 255, 0.1);
+    border: 1px solid rgba(58, 156, 255, 0.3);
 }
 
 .message.ai {
     align-self: flex-start;
-    background: var(--panel);
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    color: var(--text);
+    background: rgba(66, 245, 239, 0.05);
+    border: 1px solid var(--line);
 }
 
+/* 채팅 입력창 */
+
 #input-area {
+    width: 100%;
     display: flex;
     align-items: flex-end;
-    gap: 8px;
-    padding: 12px;
+    gap: 10px;
+    padding: 10px;
     border: 1px solid var(--line);
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--panel);
+    box-shadow: 0 0 15px rgba(66, 245, 239, 0.04);
 }
 
 #search {
     flex: 1;
     min-width: 0;
+    min-height: 40px;
     max-height: 140px;
+    padding: 10px 5px;
     resize: none;
     overflow-y: auto;
     border: none;
     outline: none;
-    color: var(--text);
     background: transparent;
-    padding: 8px 2px;
+    color: var(--text);
+    font-size: 14px;
     line-height: 1.5;
 }
 
@@ -135,21 +160,26 @@ h1 {
 
 #starting-button {
     flex-shrink: 0;
-    width: 44px;
+    width: 42px;
     height: 40px;
-    border: none;
-    border-radius: 10px;
-    color: #001012;
-    background: var(--cyan);
-    font-size: 18px;
+    border: 1px solid var(--cyan);
+    border-radius: 9px;
+    background: rgba(66, 245, 239, 0.08);
+    color: var(--cyan);
+    font-size: 20px;
     font-weight: bold;
+    transition: 0.2s;
 }
 
-#starting-button:active {
-    opacity: 0.7;
+#starting-button:hover {
+    background: var(--cyan);
+    color: var(--bg);
+    box-shadow: 0 0 12px rgba(66, 245, 239, 0.25);
 }
 
-/* 공통 창 */
+/* =========================
+   공통 팝업
+========================= */
 
 .overlay {
     position: fixed;
@@ -159,7 +189,7 @@ h1 {
     align-items: center;
     justify-content: center;
     padding: 20px;
-    background: rgba(0, 0, 0, 0.82);
+    background: rgba(0, 0, 0, 0.84);
 }
 
 .overlay.open {
@@ -171,11 +201,12 @@ h1 {
     max-width: 390px;
     max-height: 85vh;
     overflow-y: auto;
-    background: #071018;
+    margin: auto;
+    padding: 22px;
     border: 1px solid var(--line);
     border-radius: 14px;
-    padding: 22px;
-    box-shadow: 0 0 35px rgba(66, 245, 239, 0.08);
+    background: #071018;
+    box-shadow: 0 0 30px rgba(66, 245, 239, 0.08);
 }
 
 .window-header {
@@ -196,53 +227,63 @@ h1 {
 .close-button {
     width: 32px;
     height: 32px;
+    flex-shrink: 0;
     border: none;
     border-radius: 8px;
-    color: var(--muted);
     background: transparent;
-    font-size: 23px;
+    color: var(--muted);
+    font-size: 24px;
 }
 
 .close-button:hover {
-    color: var(--text);
     background: rgba(255, 255, 255, 0.06);
+    color: var(--text);
 }
 
-/* 비밀번호 창 */
+/* =========================
+   비밀번호 창
+========================= */
 
 #password-window {
-    max-width: 260px;
-    padding: 28px;
+    width: 220px;
+    max-width: calc(100vw - 40px);
+    padding: 26px;
     text-align: center;
+    overflow: hidden;
 }
 
 #password-input {
+    display: block;
     width: 100%;
     height: 52px;
+    margin: 0 auto;
+    padding: 0 0 0 10px;
     border: 1px solid var(--line);
     border-radius: 10px;
     outline: none;
     background: #03070c;
     color: var(--cyan);
     text-align: center;
-    font-size: 26px;
-    letter-spacing: 12px;
-    padding-left: 12px;
+    font-size: 25px;
+    letter-spacing: 9px;
     caret-color: var(--cyan);
 }
 
 #password-input:focus {
     border-color: var(--cyan);
+    box-shadow: 0 0 12px rgba(66, 245, 239, 0.08);
 }
 
 #password-error {
-    min-height: 18px;
-    margin-top: 10px;
+    min-height: 12px;
+    margin-top: 8px;
+    font-size: 11px;
     color: #ff7777;
-    font-size: 12px;
 }
 
-/* 데이터 입력 창 */
+/* =========================
+   데이터 창
+========================= */
 
 .field {
     margin-bottom: 16px;
@@ -289,6 +330,10 @@ h1 {
     font-weight: bold;
 }
 
+.primary-button:hover {
+    background: #a1fffb;
+}
+
 .secondary-button {
     padding: 9px 12px;
     border: 1px solid var(--line);
@@ -318,8 +363,8 @@ h1 {
 
 .data-item-top {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     gap: 10px;
     margin-bottom: 7px;
 }
@@ -359,7 +404,9 @@ h1 {
     font-size: 13px;
 }
 
-/* 터미널 창 */
+/* =========================
+   터미널 창
+========================= */
 
 #console-window {
     max-width: 500px;
@@ -386,8 +433,8 @@ h1 {
 
 #console-form {
     display: flex;
-    gap: 8px;
     align-items: center;
+    gap: 8px;
     font-family: monospace;
 }
 
@@ -418,8 +465,16 @@ h1 {
 }
 
 @media (max-width: 360px) {
-    #app {
-        padding: 20px 12px;
+    #system {
+        padding: 25px 12px 18px;
+    }
+
+    #title {
+        font-size: 42px;
+    }
+
+    #chatbox {
+        padding: 12px;
     }
 
     .window {
@@ -431,28 +486,38 @@ h1 {
 
 <body>
 
-<main id="app">
-    <header>
-        <h1>BUPSENT</h1>
-        <div class="subtitle">NEURAL INTERFACE</div>
+<main id="system">
+
+    <header id="header">
+        <h1 id="title">BUPSENT</h1>
+        <div id="subtitle">NEURAL INTERFACE</div>
     </header>
 
     <section id="chatbox" aria-live="polite">
-        <div id="welcome">BPS AI 시스템에 접속할 준비가 되었습니다.</div>
+        <div id="welcome">
+            BPS AI 시스템에 접속할 준비가 되었습니다.
+        </div>
     </section>
 
     <form id="input-area">
         <textarea
             id="search"
             rows="1"
-            placeholder="메시지를 입력하세요..."
+            placeholder="Ask anything..."
             aria-label="메시지 입력"
         ></textarea>
-        <button id="starting-button" type="submit" aria-label="전송">↑</button>
+
+        <button
+            id="starting-button"
+            type="submit"
+            aria-label="메시지 전송"
+        >@</button>
     </form>
+
 </main>
 
-<!-- 비밀번호 입력 창 -->
+
+<!-- 비밀번호 창 -->
 
 <div class="overlay" id="password-overlay">
     <section
@@ -465,15 +530,18 @@ h1 {
         <input
             id="password-input"
             type="password"
-            inputmode="numeric"
-            pattern="[0-9]*"
+            inputmode="text"
             maxlength="4"
             autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
             aria-label="비밀번호"
         >
+
         <div id="password-error"></div>
     </section>
 </div>
+
 
 <!-- 데이터 관리 창 -->
 
@@ -487,12 +555,19 @@ h1 {
     >
         <div class="window-header">
             <h2 id="data-title">BPS DATA</h2>
-            <button class="close-button" type="button" data-close="data-overlay" aria-label="닫기">×</button>
+
+            <button
+                class="close-button"
+                type="button"
+                data-close="data-overlay"
+                aria-label="닫기"
+            >×</button>
         </div>
 
         <form id="data-form">
             <div class="field">
                 <label for="data-type">DATA TYPE</label>
+
                 <select id="data-type">
                     <option value="word">단어</option>
                     <option value="sentence">문장</option>
@@ -502,6 +577,7 @@ h1 {
 
             <div class="field">
                 <label for="data-content">CONTENT</label>
+
                 <textarea
                     id="data-content"
                     maxlength="2000"
@@ -512,6 +588,7 @@ h1 {
 
             <div class="field">
                 <label for="data-meaning">MEANING</label>
+
                 <textarea
                     id="data-meaning"
                     maxlength="5000"
@@ -519,19 +596,27 @@ h1 {
                 ></textarea>
             </div>
 
-            <button class="primary-button" type="submit">SAVE DATA</button>
+            <button class="primary-button" type="submit">
+                SAVE DATA
+            </button>
         </form>
 
         <div id="terminal-status" role="status"></div>
 
         <div class="window-header">
             <h2>STORED DATA</h2>
-            <button class="secondary-button" id="export-button" type="button">EXPORT JSON</button>
+
+            <button
+                class="secondary-button"
+                id="export-button"
+                type="button"
+            >EXPORT JSON</button>
         </div>
 
         <div id="data-list" class="data-list"></div>
     </section>
 </div>
+
 
 <!-- 터미널 창 -->
 
@@ -545,13 +630,20 @@ h1 {
     >
         <div class="window-header">
             <h2 id="console-title">BPS CONSOLE</h2>
-            <button class="close-button" type="button" data-close="console-overlay" aria-label="닫기">×</button>
+
+            <button
+                class="close-button"
+                type="button"
+                data-close="console-overlay"
+                aria-label="닫기"
+            >×</button>
         </div>
 
         <div id="console-output" aria-live="polite"></div>
 
         <form id="console-form">
             <span class="console-prompt">&gt;</span>
+
             <input
                 id="console-input"
                 type="text"
@@ -559,12 +651,18 @@ h1 {
                 placeholder="명령어 입력"
                 aria-label="터미널 명령어"
             >
+
             <button id="console-run" type="submit">RUN</button>
         </form>
     </section>
 </div>
 
+
 <script>
+/* =========================
+   요소 연결 및 설정
+========================= */
+
 const search = document.getElementById("search");
 const chatbox = document.getElementById("chatbox");
 const welcome = document.getElementById("welcome");
@@ -589,9 +687,13 @@ const consoleInput = document.getElementById("console-input");
 const STORAGE_KEY = "BUPSENT_DATA_V1";
 const DATA_PASSWORD = "3868";
 
+let pendingDestination = null;
 let previousFocus = null;
 
-/* 채팅 */
+
+/* =========================
+   채팅 기능
+========================= */
 
 function addMessage(text, type) {
     if (welcome.isConnected) {
@@ -601,12 +703,16 @@ function addMessage(text, type) {
     const message = document.createElement("p");
     message.className = "message " + type;
     message.textContent = text;
-    chatbox.prepend(message);
+
+    chatbox.appendChild(message);
+    chatbox.scrollTop = chatbox.scrollHeight;
 }
 
 function resizeInput() {
     search.style.height = "auto";
-    search.style.height = Math.min(search.scrollHeight, 140) + "px";
+
+    search.style.height =
+        Math.min(search.scrollHeight, 140) + "px";
 }
 
 function askAI() {
@@ -620,19 +726,22 @@ function askAI() {
     resizeInput();
 
     if (command === "/bps data") {
-        openPasswordWindow();
+        openPasswordWindow("data");
         return;
     }
 
     if (command === "/bps console") {
-        openConsole();
+        openPasswordWindow("console");
         return;
     }
 
-    addMessage(text, "user");
+    addMessage("👤 " + text, "user");
 
     if (command === "bps") {
-        addMessage("BPS AI 시스템에 접속했습니다.", "ai");
+        addMessage(
+            "BPS AI 시스템에 접속했습니다.",
+            "ai"
+        );
     } else {
         addMessage(
             "현재는 기본 채팅 인터페이스입니다. AI 기능은 이후 연결할 수 있습니다.",
@@ -640,13 +749,15 @@ function askAI() {
         );
     }
 
-    chatbox.scrollTop = 0;
+    search.focus();
 }
 
-document.getElementById("input-area").addEventListener("submit", function(event) {
-    event.preventDefault();
-    askAI();
-});
+document
+    .getElementById("input-area")
+    .addEventListener("submit", function(event) {
+        event.preventDefault();
+        askAI();
+    });
 
 search.addEventListener("input", resizeInput);
 
@@ -661,19 +772,31 @@ search.addEventListener("keydown", function(event) {
     }
 });
 
-/* 창 열기와 닫기 */
+
+/* =========================
+   팝업 열기 및 닫기
+========================= */
 
 function openOverlay(overlay, focusElement) {
     previousFocus = document.activeElement;
+
     overlay.classList.add("open");
 
     if (focusElement) {
-        setTimeout(() => focusElement.focus(), 30);
+        setTimeout(function() {
+            focusElement.focus();
+        }, 80);
     }
 }
 
 function closeOverlay(overlay) {
     overlay.classList.remove("open");
+
+    if (overlay === passwordOverlay) {
+        passwordInput.value = "";
+        passwordError.textContent = "";
+        pendingDestination = null;
+    }
 
     if (previousFocus && typeof previousFocus.focus === "function") {
         previousFocus.focus();
@@ -682,12 +805,19 @@ function closeOverlay(overlay) {
 
 document.querySelectorAll("[data-close]").forEach(function(button) {
     button.addEventListener("click", function() {
-        const overlay = document.getElementById(button.dataset.close);
+        const overlay = document.getElementById(
+            button.dataset.close
+        );
+
         closeOverlay(overlay);
     });
 });
 
-[passwordOverlay, dataOverlay, consoleOverlay].forEach(function(overlay) {
+[
+    passwordOverlay,
+    dataOverlay,
+    consoleOverlay
+].forEach(function(overlay) {
     overlay.addEventListener("click", function(event) {
         if (event.target === overlay) {
             closeOverlay(overlay);
@@ -705,15 +835,22 @@ document.addEventListener("keydown", function(event) {
     }
 });
 
-/* 비밀번호 */
 
-function openPasswordWindow() {
+/* =========================
+   비밀번호 인증
+========================= */
+
+function openPasswordWindow(destination) {
+    pendingDestination = destination;
+
     passwordInput.value = "";
     passwordError.textContent = "";
+
     openOverlay(passwordOverlay, passwordInput);
 }
 
 passwordInput.addEventListener("input", function() {
+    // 숫자만 허용하고 최대 4자리로 제한
     passwordInput.value = passwordInput.value
         .replace(/\D/g, "")
         .slice(0, 4);
@@ -727,22 +864,35 @@ passwordInput.addEventListener("keydown", function(event) {
     event.preventDefault();
 
     if (passwordInput.value.length !== 4) {
-        passwordError.textContent = "";
         return;
     }
 
     if (passwordInput.value === DATA_PASSWORD) {
+        const destination = pendingDestination;
+
         passwordOverlay.classList.remove("open");
         passwordInput.value = "";
-        openDataConsole();
+        passwordError.textContent = "";
+        pendingDestination = null;
+
+        if (destination === "data") {
+            openDataConsole();
+        } else if (destination === "console") {
+            openConsole();
+        }
+
     } else {
+        // 잘못된 비밀번호는 표시하지 않고 입력 칸만 초기화
         passwordInput.value = "";
         passwordError.textContent = "";
         passwordInput.focus();
     }
 });
 
-/* 데이터 저장 */
+
+/* =========================
+   데이터 불러오기 및 저장
+========================= */
 
 function loadData() {
     try {
@@ -751,14 +901,19 @@ function loadData() {
         if (!saved) return [];
 
         const parsed = JSON.parse(saved);
+
         return Array.isArray(parsed) ? parsed : [];
+
     } catch (error) {
         return [];
     }
 }
 
 function saveData(items) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(items)
+    );
 }
 
 function setTerminalStatus(text) {
@@ -768,6 +923,7 @@ function setTerminalStatus(text) {
 function openDataConsole() {
     renderDataList();
     setTerminalStatus("");
+
     openOverlay(dataOverlay, dataContent);
 }
 
@@ -793,12 +949,17 @@ dataForm.addEventListener("submit", function(event) {
     });
 
     if (duplicate) {
-        setTerminalStatus("같은 유형과 내용의 데이터가 이미 있습니다.");
+        setTerminalStatus(
+            "같은 유형과 내용의 데이터가 이미 있습니다."
+        );
         return;
     }
 
     const newItem = {
-        id: Date.now().toString() + Math.random().toString(16).slice(2),
+        id:
+            Date.now().toString() +
+            Math.random().toString(16).slice(2),
+
         type: type,
         content: content,
         meaning: meaning,
@@ -809,24 +970,37 @@ dataForm.addEventListener("submit", function(event) {
 
     try {
         saveData(items);
+
         dataContent.value = "";
         dataMeaning.value = "";
+
         setTerminalStatus("데이터를 저장했습니다.");
         renderDataList();
         dataContent.focus();
+
     } catch (error) {
-        setTerminalStatus("저장에 실패했습니다. 브라우저 저장 공간을 확인하세요.");
+        setTerminalStatus(
+            "저장에 실패했습니다. 브라우저 저장 공간을 확인하세요."
+        );
     }
 });
 
+
+/* =========================
+   저장된 데이터 표시
+========================= */
+
 function renderDataList() {
     const items = loadData();
+
     dataList.replaceChildren();
 
     if (items.length === 0) {
         const empty = document.createElement("div");
+
         empty.className = "empty-list";
         empty.textContent = "저장된 데이터가 없습니다.";
+
         dataList.appendChild(empty);
         return;
     }
@@ -869,6 +1043,7 @@ function renderDataList() {
         meaning.textContent = item.meaning || "설명 없음";
 
         container.append(top, content, meaning);
+
         dataList.appendChild(container);
     });
 }
@@ -882,43 +1057,57 @@ function deleteData(id) {
         saveData(items);
         renderDataList();
         setTerminalStatus("데이터를 삭제했습니다.");
+
     } catch (error) {
         setTerminalStatus("삭제에 실패했습니다.");
     }
 }
 
-/* JSON 내보내기 */
 
-document.getElementById("export-button").addEventListener("click", function() {
-    const items = loadData();
+/* =========================
+   JSON 파일 내보내기
+========================= */
 
-    const blob = new Blob(
-        [JSON.stringify(items, null, 2)],
-        { type: "application/json;charset=utf-8" }
-    );
+document
+    .getElementById("export-button")
+    .addEventListener("click", function() {
+        const items = loadData();
 
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
+        const blob = new Blob(
+            [JSON.stringify(items, null, 2)],
+            {
+                type: "application/json;charset=utf-8"
+            }
+        );
 
-    link.href = url;
-    link.download = "bps-data.json";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
 
-    setTimeout(function() {
-        URL.revokeObjectURL(url);
-    }, 1000);
+        link.href = url;
+        link.download = "bps-data.json";
 
-    setTerminalStatus("JSON 파일 내보내기를 요청했습니다.");
-});
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
 
-/* 터미널 */
+        setTimeout(function() {
+            URL.revokeObjectURL(url);
+        }, 1000);
+
+        setTerminalStatus("JSON 파일 내보내기를 요청했습니다.");
+    });
+
+
+/* =========================
+   터미널 기능
+========================= */
 
 function printConsole(text) {
     const line = document.createElement("div");
+
     line.className = "console-line";
     line.textContent = text;
+
     consoleOutput.appendChild(line);
     consoleOutput.scrollTop = consoleOutput.scrollHeight;
 }
@@ -928,7 +1117,7 @@ function openConsole() {
 
     printConsole("BPS AI Console");
     printConsole("터미널 인터페이스가 시작되었습니다.");
-    printConsole('사용 가능한 명령어: help, clear, data');
+    printConsole("사용 가능한 명령어: help, clear, data");
     printConsole("");
 
     openOverlay(consoleOverlay, consoleInput);
@@ -942,18 +1131,26 @@ consoleForm.addEventListener("submit", function(event) {
     if (!command) return;
 
     printConsole("> " + command);
+
     consoleInput.value = "";
 
     if (command === "help") {
         printConsole("help  - 사용 가능한 명령어");
         printConsole("clear - 터미널 화면 지우기");
         printConsole("data  - 저장된 데이터 개수 확인");
+
     } else if (command === "clear") {
         consoleOutput.replaceChildren();
+
     } else if (command === "data") {
-        printConsole("저장된 데이터: " + loadData().length + "개");
+        printConsole(
+            "저장된 데이터: " + loadData().length + "개"
+        );
+
     } else {
-        printConsole("알 수 없는 명령어입니다. help를 입력하세요.");
+        printConsole(
+            "알 수 없는 명령어입니다. help를 입력하세요."
+        );
     }
 });
 </script>
