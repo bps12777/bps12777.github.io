@@ -1,532 +1,990 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BPS AI</title>
-  <style>
-    :root {
-      --bg: #03070c;
-      --panel: #08121b;
-      --panel-2: #0b1a26;
-      --cyan: #42f5ef;
-      --blue: #3a9cff;
-      --purple: #a78bfa;
-      --text: #e9f7ff;
-      --muted: #7f9ba9;
-      --line: rgba(66, 245, 239, .22);
-      --danger: #ff7188;
-      --success: #74f7b2;
-    }
-    * { box-sizing: border-box; }
-    html { min-height: 100%; background: var(--bg); }
-    body {
-      margin: 0; min-height: 100vh; padding: 24px 14px 34px;
-      color: var(--text); background:
-        radial-gradient(ellipse at 50% -15%, rgba(58,156,255,.15), transparent 45%),
-        radial-gradient(ellipse at 0% 55%, rgba(66,245,239,.06), transparent 35%),
-        var(--bg);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    button, input, textarea, select { font: inherit; }
-    button { cursor: pointer; }
-    .app { width: 100%; max-width: 430px; margin: 0 auto; }
-    .topbar { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:22px; }
-    .status { display:flex; align-items:center; gap:7px; color:var(--muted); font-size:10px; letter-spacing:2px; }
-    .status-dot { width:7px; height:7px; border-radius:50%; background:var(--cyan); box-shadow:0 0 10px var(--cyan); }
-    .mini-actions { display:flex; gap:7px; }
-    .mini-btn { border:1px solid var(--line); background:rgba(8,18,27,.7); color:var(--cyan); border-radius:9px; padding:7px 9px; font-size:10px; letter-spacing:1px; }
-    .hero { text-align:center; margin:18px 0 25px; }
-    .hero h1 { margin:0; font-size:clamp(38px, 11vw, 52px); line-height:1.1; font-weight:800; letter-spacing:5px; color:var(--cyan); text-shadow:0 0 10px rgba(66,245,239,.55), 0 0 28px rgba(66,245,239,.15); }
-    .subtitle { margin-top:10px; font-size:10px; letter-spacing:5px; color:var(--muted); }
-    .hero-line { width:76px; height:1px; margin:17px auto 0; background:linear-gradient(90deg, transparent, var(--cyan), transparent); }
-    .system-card { border:1px solid var(--line); background:linear-gradient(145deg, rgba(8,18,27,.96), rgba(5,13,21,.92)); border-radius:17px; padding:13px 15px; margin-bottom:14px; box-shadow:0 0 25px rgba(66,245,239,.035), inset 0 0 18px rgba(66,245,239,.018); }
-    .system-row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-    .system-label { color:var(--muted); font-size:9px; letter-spacing:2px; }
-    .system-value { color:var(--cyan); font-size:11px; letter-spacing:1px; }
-    .system-note { margin-top:8px; font-size:11px; color:#9cb5c2; line-height:1.6; }
-    .chat-shell { border:1px solid var(--line); border-radius:19px; background:rgba(5,13,21,.84); overflow:hidden; box-shadow:0 0 28px rgba(58,156,255,.055); }
-    .chat-head { display:flex; align-items:center; justify-content:space-between; padding:13px 15px; border-bottom:1px solid rgba(66,245,239,.13); background:rgba(8,18,27,.8); }
-    .chat-title { font-size:10px; color:var(--cyan); letter-spacing:2px; }
-    .chat-count { color:var(--muted); font-size:10px; }
-    #chatbox { height:350px; overflow-y:auto; padding:17px 13px; display:flex; flex-direction:column; gap:15px; scroll-behavior:smooth; }
-    #chatbox::-webkit-scrollbar, .data-list::-webkit-scrollbar, .console-output::-webkit-scrollbar { width:4px; }
-    #chatbox::-webkit-scrollbar-thumb, .data-list::-webkit-scrollbar-thumb, .console-output::-webkit-scrollbar-thumb { background:rgba(66,245,239,.22); border-radius:10px; }
-    .welcome { text-align:center; color:var(--muted); font-size:11px; line-height:1.8; padding:32px 10px; }
-    .welcome-icon { display:block; color:var(--cyan); font-size:27px; margin-bottom:10px; text-shadow:0 0 15px rgba(66,245,239,.5); }
-    .message { max-width:88%; display:flex; flex-direction:column; gap:5px; animation:fade-in .18s ease-out; }
-    .message.user { align-self:flex-end; align-items:flex-end; }
-    .message.ai { align-self:flex-start; align-items:flex-start; }
-    .message-meta { font-size:9px; color:var(--muted); letter-spacing:1px; }
-    .bubble { white-space:pre-wrap; overflow-wrap:anywhere; padding:10px 12px; border-radius:13px; font-size:12px; line-height:1.7; }
-    .user .bubble { color:#031015; background:linear-gradient(135deg, var(--cyan), #8af9f5); border-bottom-right-radius:4px; box-shadow:0 0 14px rgba(66,245,239,.08); }
-    .ai .bubble { color:var(--text); background:linear-gradient(145deg, rgba(17,39,57,.98), rgba(12,23,39,.98)); border:1px solid rgba(58,156,255,.28); border-bottom-left-radius:4px; }
-    .bubble a { color:var(--cyan); text-decoration:underline; text-underline-offset:3px; }
-    .composer { display:flex; align-items:flex-end; gap:9px; padding:12px; border-top:1px solid rgba(66,245,239,.13); background:rgba(8,18,27,.65); }
-    #search { flex:1; min-width:0; min-height:45px; max-height:125px; resize:vertical; border:1px solid rgba(66,245,239,.24); outline:none; border-radius:12px; padding:12px; color:var(--text); background:#030a11; font-size:12px; line-height:1.5; }
-    #search:focus { border-color:var(--cyan); box-shadow:0 0 0 2px rgba(66,245,239,.07); }
-    #search::placeholder { color:#607b89; }
-    #starting-button { flex:0 0 46px; height:45px; display:grid; place-items:center; border:1px solid var(--cyan); border-radius:12px; background:rgba(66,245,239,.1); color:var(--cyan); box-shadow:0 0 15px rgba(66,245,239,.08); }
-    #starting-button:active { transform:scale(.96); }
-    .hint { padding:0 14px 13px; color:#607b89; font-size:10px; line-height:1.7; }
-    .footer { text-align:center; color:#49616d; font-size:9px; letter-spacing:2px; margin-top:18px; }
-    .overlay { position:fixed; inset:0; z-index:20; display:none; align-items:center; justify-content:center; padding:16px; background:rgba(0,4,8,.82); backdrop-filter:blur(8px); }
-    .overlay.show { display:flex; }
-    .modal { width:100%; max-width:430px; max-height:88vh; overflow:hidden; display:flex; flex-direction:column; border:1px solid rgba(66,245,239,.35); border-radius:17px; background:#06111b; box-shadow:0 0 35px rgba(66,245,239,.09); }
-    .modal-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:15px 16px; border-bottom:1px solid var(--line); }
-    .modal-title { color:var(--cyan); font-size:12px; letter-spacing:2px; }
-    .close-btn { border:0; color:var(--muted); background:transparent; font-size:23px; line-height:1; }
-    .modal-body { padding:15px; overflow:auto; }
-    .field { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
-    .field label { font-size:10px; letter-spacing:1px; color:var(--muted); }
-    .field input, .field textarea, .field select { width:100%; border:1px solid rgba(66,245,239,.22); border-radius:9px; outline:none; padding:10px; color:var(--text); background:#030a11; font-size:12px; }
-    .field textarea { min-height:65px; resize:vertical; }
-    .field input:focus, .field textarea:focus, .field select:focus { border-color:var(--cyan); }
-    .btn-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
-    .action-btn { border:1px solid var(--line); border-radius:9px; padding:9px 12px; background:rgba(66,245,239,.08); color:var(--cyan); font-size:11px; }
-    .action-btn.primary { border-color:var(--cyan); background:var(--cyan); color:#021014; font-weight:700; }
-    .action-btn.danger { color:var(--danger); border-color:rgba(255,113,136,.35); background:rgba(255,113,136,.06); }
-    .small-note { color:var(--muted); font-size:10px; line-height:1.7; margin:8px 0; }
-    .data-tools { display:flex; gap:8px; margin-bottom:12px; }
-    .data-tools input { flex:1; min-width:0; border:1px solid var(--line); border-radius:9px; padding:9px; color:var(--text); background:#030a11; font-size:11px; }
-    .data-list { display:flex; flex-direction:column; gap:8px; max-height:34vh; overflow:auto; }
-    .data-item { border:1px solid rgba(66,245,239,.14); border-radius:10px; padding:10px; background:rgba(8,18,27,.75); }
-    .data-item-top { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:5px; }
-    .data-type { color:var(--cyan); font-size:9px; letter-spacing:1px; }
-    .data-date { color:#617b89; font-size:9px; }
-    .data-content { font-size:12px; line-height:1.6; overflow-wrap:anywhere; }
-    .data-meaning { color:#9ab4c1; font-size:11px; margin-top:4px; line-height:1.6; overflow-wrap:anywhere; }
-    .data-item-actions { display:flex; gap:6px; margin-top:8px; }
-    .tiny-btn { border:1px solid rgba(66,245,239,.17); border-radius:7px; padding:5px 8px; background:transparent; color:var(--muted); font-size:9px; }
-    .console-output { min-height:180px; max-height:38vh; overflow:auto; border:1px solid rgba(66,245,239,.16); border-radius:10px; background:#02070b; padding:11px; color:#a6f9e9; font:11px/1.7 ui-monospace, SFMono-Regular, Consolas, monospace; white-space:pre-wrap; overflow-wrap:anywhere; }
-    .console-line { margin-bottom:5px; }
-    .console-input-row { display:flex; gap:8px; margin-top:10px; }
-    .console-input-row input { flex:1; min-width:0; border:1px solid var(--line); border-radius:9px; padding:10px; color:var(--text); background:#030a11; font:11px ui-monospace, monospace; }
-    .toast { position:fixed; left:50%; bottom:22px; z-index:50; transform:translate(-50%, 15px); opacity:0; pointer-events:none; border:1px solid var(--line); border-radius:10px; background:#081923; color:var(--cyan); padding:10px 14px; font-size:11px; transition:.2s; max-width:90vw; text-align:center; }
-    .toast.show { opacity:1; transform:translate(-50%, 0); }
-    @keyframes fade-in { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
-    @media (max-width:360px) { body { padding-left:9px; padding-right:9px; } #chatbox { height:320px; } .hero h1 { letter-spacing:3px; } .mini-btn { padding:6px 7px; } }
-  </style>
-</head>
-<body>
-  <main class="app">
-    <div class="topbar">
-      <div class="status"><span class="status-dot"></span><span>SYSTEM ONLINE</span></div>
-      <div class="mini-actions">
-        <button class="mini-btn" type="button" id="open-data">BPS DATA</button>
-        <button class="mini-btn" type="button" id="open-console">CONSOLE</button>
-      </div>
-    </div>
+<!DOCTYPE html>  <html lang="ko">  
+<head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">  
+<title>BPS AI</title>  <style>  
+:root {  
+    --bg: #03070c;  
+    --panel: #08121b;  
+    --cyan: #42f5ef;  
+    --blue: #3a9cff;  
+    --purple: #a78bfa;  
+    --text: #e9f7ff;  
+    --muted: #7f9ba9;  
+    --line: rgba(66, 245, 239, 0.22);  
+}  
+  
+* {  
+    box-sizing: border-box;  
+}  
+  
+body {  
+    margin: 0;  
+    min-height: 100vh;  
+    padding: 28px 16px;  
+    display: flex;  
+    justify-content: center;  
+    align-items: flex-start;  
+    background:  
+        radial-gradient(circle at 50% 10%, rgba(58,156,255,0.10), transparent 35%),  
+        radial-gradient(circle at 50% 50%, rgba(66,245,239,0.05), transparent 60%),  
+        var(--bg);  
+    color: var(--text);  
+    font-family: Arial, sans-serif;  
+}  
+  
+#system {  
+    width: 100%;  
+    max-width: 430px;  
+    display: flex;  
+    flex-direction: column;  
+    align-items: center;  
+}  
+  
+h1 {  
+    margin: 40px 0 8px;  
+    color: var(--cyan);  
+    font-size: clamp(34px, 10vw, 43px);  
+    letter-spacing: 5px;  
+    text-align: center;  
+    text-shadow: 0 0 18px rgba(66,245,239,0.45);  
+}  
+  
+#subtitle {  
+    color: var(--muted);  
+    font-size: 11px;  
+    letter-spacing: 4px;  
+}  
+  
+#accent-line {  
+    width: 48px;  
+    height: 2px;  
+    margin: 20px 0 28px;  
+    background: linear-gradient(90deg, var(--cyan), var(--blue));  
+    box-shadow: 0 0 12px var(--cyan);  
+}  
+  
+/* 채팅 입력 영역 */  
+  
+#input-area {  
+    width: 100%;  
+    display: flex;  
+    align-items: center;  
+    gap: 9px;  
+}  
+  
+#search {  
+    flex: 1;  
+    min-width: 0;  
+    min-height: 50px;  
+    max-height: 120px;  
+    resize: none;  
+    overflow-y: auto;  
+    padding: 14px;  
+    border: 1px solid var(--line);  
+    border-radius: 17px;  
+    outline: none;  
+    background: var(--panel);  
+    color: var(--text);  
+    font-size: 14px;  
+    line-height: 20px;  
+}  
+  
+#search:focus {  
+    border-color: var(--cyan);  
+    box-shadow: 0 0 12px rgba(66,245,239,0.12);  
+}  
+  
+#search::placeholder {  
+    color: var(--muted);  
+}  
+  
+#starting-button {  
+    width: 50px;  
+    height: 50px;  
+    flex-shrink: 0;  
+    display: flex;  
+    justify-content: center;  
+    align-items: center;  
+    border: 1px solid var(--cyan);  
+    border-radius: 16px;  
+    background: linear-gradient(135deg, rgba(66,245,239,0.16), rgba(58,156,255,0.16));  
+    color: var(--cyan);  
+    cursor: pointer;  
+}  
+  
+#starting-button svg {  
+    width: 22px;  
+    height: 22px;  
+}  
+  
+/* 채팅창 */  
+  
+#chatbox {  
+    width: 100%;  
+    height: 350px;  
+    margin-top: 18px;  
+    padding: 15px;  
+    display: flex;  
+    flex-direction: column;  
+    gap: 13px;  
+    overflow-y: auto;  
+    border: 1px solid var(--line);  
+    border-radius: 18px;  
+    background:  
+        radial-gradient(circle at 50% 0%, rgba(58,156,255,0.08), transparent 50%),  
+        linear-gradient(180deg, rgba(8,18,27,0.96), rgba(3,7,12,0.98));  
+}  
+  
+/* 첫 화면에는 아이콘만 중앙에 표시 */  
+  
+#welcome {  
+    flex: 1;  
+    min-height: 100%;  
+    display: flex;  
+    justify-content: center;  
+    align-items: center;  
+}  
+  
+#welcome-icon {  
+    color: var(--cyan);  
+    font-size: 38px;  
+    line-height: 1;  
+    text-shadow:  
+        0 0 10px rgba(66,245,239,0.8),  
+        0 0 28px rgba(66,245,239,0.4);  
+}  
+  
+/* 메시지 디자인 */  
+  
+.message {  
+    max-width: 85%;  
+    padding: 11px 14px;  
+    border-radius: 15px;  
+    font-size: 14px;  
+    line-height: 1.5;  
+    white-space: pre-wrap;  
+    overflow-wrap: anywhere;  
+}  
+  
+.user-message {  
+    align-self: flex-end;  
+    color: #031016;  
+    background: linear-gradient(135deg, var(--cyan), var(--blue));  
+    border-radius: 15px 15px 4px 15px;  
+}  
+  
+.ai-message {  
+    align-self: flex-start;  
+    color: var(--text);  
+    background: linear-gradient(135deg, rgba(58,156,255,0.14), rgba(167,139,250,0.12));  
+    border: 1px solid rgba(58,156,255,0.2);  
+    border-radius: 15px 15px 15px 4px;  
+}  
+  
+/* AI가 답변하는 사이트 링크 */  
+  
+.ai-link {  
+    color: var(--cyan);  
+    text-decoration: underline;  
+    text-decoration-color: var(--cyan);  
+    text-underline-offset: 4px;  
+    overflow-wrap: anywhere;  
+    cursor: pointer;  
+}  
+  
+.ai-link:hover {  
+    color: white;  
+    text-shadow: 0 0 10px var(--cyan);  
+}  
+  
+/* 공통 창 */  
+  
+.overlay {  
+    position: fixed;  
+    inset: 0;  
+    z-index: 1000;  
+    display: none;  
+    justify-content: center;  
+    align-items: center;  
+    padding: 18px;  
+    background: rgba(0,0,0,0.82);  
+    backdrop-filter: blur(8px);  
+}  
+  
+.overlay.active {  
+    display: flex;  
+}  
+  
+.window {  
+    width: 100%;  
+    max-width: 430px;  
+    max-height: 85vh;  
+    overflow: auto;  
+    padding: 20px;  
+    border: 1px solid var(--cyan);  
+    border-radius: 16px;  
+    background: #061019;  
+    box-shadow: 0 0 25px rgba(66,245,239,0.12);  
+}  
+  
+.window-header {  
+    display: flex;  
+    justify-content: space-between;  
+    align-items: center;  
+    gap: 12px;  
+    margin-bottom: 18px;  
+}  
+  
+.window-header h2 {  
+    margin: 0;  
+    color: var(--cyan);  
+    font-size: 18px;  
+    letter-spacing: 2px;  
+}  
+  
+.close-button {  
+    width: 32px;  
+    height: 32px;  
+    border: 1px solid var(--line);  
+    border-radius: 8px;  
+    background: transparent;  
+    color: var(--cyan);  
+    font-size: 20px;  
+    cursor: pointer;  
+}  
+  
+/* 비밀번호 창 */  
+  
+#password-window {  
+    max-width: 220px;  
+    padding: 20px;  
+}  
+  
+#password-input {  
+    width: 100%;  
+    height: 44px;  
+    border: 1px solid var(--cyan);  
+    border-radius: 10px;  
+    outline: none;  
+    background: #03070c;  
+    color: var(--cyan);  
+    text-align: center;  
+    letter-spacing: 9px;  
+    font-size: 20px;  
+}  
+  
+/* 데이터 관리창 */  
+  
+.field {  
+    margin-bottom: 14px;  
+}  
+  
+.field label {  
+    display: block;  
+    margin-bottom: 7px;  
+    color: var(--muted);  
+    font-size: 11px;  
+    letter-spacing: 2px;  
+}  
+  
+.field input,  
+.field select,  
+.field textarea {  
+    width: 100%;  
+    padding: 11px;  
+    border: 1px solid var(--line);  
+    border-radius: 9px;  
+    outline: none;  
+    background: #03070c;  
+    color: var(--text);  
+    font: inherit;  
+}  
+  
+.field textarea {  
+    min-height: 75px;  
+    resize: vertical;  
+}  
+  
+.action-button {  
+    min-height: 40px;  
+    padding: 10px 14px;  
+    border: 1px solid var(--cyan);  
+    border-radius: 9px;  
+    background: rgba(66,245,239,0.08);  
+    color: var(--cyan);  
+    cursor: pointer;  
+}  
+  
+.action-button:hover {  
+    background: rgba(66,245,239,0.16);  
+}  
+  
+#data-list {  
+    display: flex;  
+    flex-direction: column;  
+    gap: 9px;  
+    margin-top: 20px;  
+}  
+  
+.data-item {  
+    padding: 12px;  
+    border: 1px solid var(--line);  
+    border-radius: 9px;  
+    background: rgba(255,255,255,0.02);  
+    overflow-wrap: anywhere;  
+}  
+  
+.data-item strong {  
+    color: var(--cyan);  
+}  
+  
+.data-item p {  
+    margin: 7px 0;  
+    font-size: 13px;  
+    white-space: pre-wrap;  
+}  
+  
+.data-item button {  
+    margin-top: 5px;  
+}  
+  
+.data-actions {  
+    display: flex;  
+    flex-wrap: wrap;  
+    gap: 8px;  
+    margin-top: 14px;  
+}  
+  
+/* 터미널 */  
+  
+#terminal-output {  
+    min-height: 130px;  
+    max-height: 300px;  
+    overflow-y: auto;  
+    padding: 12px;  
+    border: 1px solid rgba(66,245,239,0.18);  
+    border-radius: 8px;  
+    background: #020604;  
+    color: #7dff9b;  
+    font: 13px/1.6 monospace;  
+    white-space: pre-wrap;  
+    overflow-wrap: anywhere;  
+}  
+  
+#terminal-input {  
+    width: 100%;  
+    margin-top: 10px;  
+    padding: 12px;  
+    border: 1px solid rgba(66,245,239,0.3);  
+    border-radius: 8px;  
+    outline: none;  
+    background: #020604;  
+    color: #7dff9b;  
+    font: 14px monospace;  
+}  
+  
+@media (max-width: 480px) {  
+    body {  
+        padding: 18px 12px;  
+    }  
+  
+    h1 {  
+        margin-top: 32px;  
+    }  
+  
+    #chatbox {  
+        height: 330px;  
+    }  
+}  
+</style>  </head>  <body>  <main id="system">  <h1>BUPSENT</h1>  
+<div id="subtitle">NEURAL INTERFACE</div>  
+<div id="accent-line"></div>  
 
-    <header class="hero">
-      <h1>BUPSENT</h1>
-      <div class="subtitle">NEURAL INTERFACE</div>
-      <div class="hero-line"></div>
-    </header>
+<form id="input-area">  
+    <textarea id="search" placeholder="메시지를 입력하세요..." rows="1"></textarea>  
 
-    <section class="system-card" aria-label="system status">
-      <div class="system-row"><span class="system-label">KNOWLEDGE CORE</span><span class="system-value" id="knowledge-count">0 RECORDS</span></div>
-      <div class="system-note">저장한 정보를 바탕으로 답변하는 개인 AI 프로토타입입니다.</div>
-    </section>
+    <button id="starting-button" type="submit" aria-label="전송">  
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">  
+            <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>  
+            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>  
+        </svg>  
+    </button>  
+</form>  
 
-    <section class="chat-shell">
-      <div class="chat-head"><span class="chat-title">◈ BPS AI CHAT</span><span class="chat-count" id="chat-count">0 MESSAGES</span></div>
-      <div id="chatbox" aria-live="polite">
-        <div class="welcome" id="welcome"><span class="welcome-icon">◈</span>BPS AI 시스템이 준비되었습니다.<br>정보를 저장하고, 저장한 지식을 질문해 보세요.</div>
-      </div>
-      <form class="composer" id="chat-form">
-        <textarea id="search" rows="1" placeholder="메시지를 입력하세요...  (Enter 전송 / Shift+Enter 줄바꿈)" aria-label="메시지 입력"></textarea>
-        <button id="starting-button" type="submit" aria-label="전송">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 3L10.5 13.5M21 3l-6.7 18-3.8-7.5L3 9.7 21 3Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </form>
-      <div class="hint">예시: <b>저장: 사과 | 색깔 | 빨간색</b><br>질문: “사과”, “사과 색깔은?”, “사과는 어떤 종류야?”</div>
-    </section>
-    <div class="footer">BPS AI · PERSONAL KNOWLEDGE SYSTEM</div>
-  </main>
+<section id="chatbox" aria-live="polite">  
+    <div id="welcome">  
+        <div id="welcome-icon">◈</div>  
+    </div>  
+</section>
 
-  <!-- Password modal -->
-  <div class="overlay" id="password-overlay" role="dialog" aria-modal="true" aria-labelledby="password-title">
-    <section class="modal" style="max-width:330px">
-      <div class="modal-head"><span class="modal-title" id="password-title">ACCESS AUTHORIZATION</span><button class="close-btn" data-close="password-overlay" aria-label="닫기">×</button></div>
-      <div class="modal-body">
-        <p class="small-note">BPS 관리 기능에 접근하려면 비밀번호를 입력하세요.</p>
-        <div class="field"><label for="password-input">ACCESS CODE</label><input id="password-input" type="password" inputmode="numeric" maxlength="20" placeholder="비밀번호" /></div>
-        <div class="btn-row"><button class="action-btn primary" id="password-submit" type="button">UNLOCK</button><button class="action-btn" data-close="password-overlay" type="button">CANCEL</button></div>
-        <p class="small-note">주의: 이 비밀번호는 브라우저 코드 안에 있으므로 실제 보안 기능은 아닙니다.</p>
-      </div>
-    </section>
-  </div>
+</main>  <!-- 비밀번호 창 -->  <div class="overlay" id="password-overlay">  
+    <div class="window" id="password-window">  
+        <input  
+            id="password-input"  
+            type="password"  
+            inputmode="text"  
+            maxlength="4"  
+            autocomplete="off"  
+            aria-label="비밀번호"  
+        >  
+    </div>  
+</div>  <!-- 데이터 관리창 -->  <div class="overlay" id="data-overlay">  
+    <section class="window">  
+        <header class="window-header">  
+            <h2>BPS DATA</h2>  
+            <button class="close-button" data-close="data-overlay" aria-label="닫기">&times;</button>  
+        </header>  <div class="field">  
+        <label for="data-type">TYPE</label>  
+        <select id="data-type">  
+            <option value="word">WORD</option>  
+            <option value="sentence">SENTENCE</option>  
+            <option value="knowledge">KNOWLEDGE</option>  
+        </select>  
+    </div>  
 
-  <!-- Data manager -->
-  <div class="overlay" id="data-overlay" role="dialog" aria-modal="true" aria-labelledby="data-title">
-    <section class="modal">
-      <div class="modal-head"><span class="modal-title" id="data-title">BPS DATA MANAGER</span><button class="close-btn" data-close="data-overlay" aria-label="닫기">×</button></div>
-      <div class="modal-body">
-        <p class="small-note">여기서 저장한 정보는 현재 브라우저의 localStorage에 보관됩니다. JSON으로 백업하거나 다른 기기에서 가져올 수 있습니다.</p>
-        <div class="field"><label for="record-type">DATA TYPE</label><select id="record-type"><option value="KNOWLEDGE">KNOWLEDGE · 지식</option><option value="WORD">WORD · 단어</option><option value="SENTENCE">SENTENCE · 문장</option></select></div>
-        <div class="field"><label for="record-subject">SUBJECT · 주제 / 대상</label><input id="record-subject" placeholder="예: 사과" /></div>
-        <div class="field"><label for="record-predicate">PREDICATE · 속성 / 관계 (선택)</label><input id="record-predicate" placeholder="예: 색깔, 분류, 정의" /></div>
-        <div class="field"><label for="record-object">OBJECT / MEANING · 정보 / 뜻</label><textarea id="record-object" placeholder="예: 빨간색" rows="2"></textarea></div>
-        <div class="field"><label for="record-aliases">ALIASES · 다른 표현 (쉼표로 구분, 선택)</label><input id="record-aliases" placeholder="예: 사과 색, 사과 색상" /></div>
-        <div class="btn-row"><button class="action-btn primary" id="save-record" type="button">SAVE DATA</button><button class="action-btn" id="clear-record-form" type="button">CLEAR FORM</button></div>
-        <div class="data-tools" style="margin-top:16px"><input id="data-filter" placeholder="저장 데이터 검색..." aria-label="저장 데이터 검색" /><button class="action-btn" id="export-data" type="button">EXPORT</button></div>
-        <div class="btn-row" style="margin-top:0; margin-bottom:12px"><button class="action-btn" id="import-data" type="button">IMPORT JSON</button><button class="action-btn danger" id="delete-all-data" type="button">DELETE ALL</button><input id="import-file" type="file" accept="application/json,.json" hidden /></div>
-        <div class="data-list" id="data-list"></div>
-      </div>
-    </section>
-  </div>
+    <div class="field">  
+        <label for="data-content">CONTENT</label>  
+        <textarea id="data-content" placeholder="예: 네이버"></textarea>  
+    </div>  
 
-  <!-- Console -->
-  <div class="overlay" id="console-overlay" role="dialog" aria-modal="true" aria-labelledby="console-title">
-    <section class="modal">
-      <div class="modal-head"><span class="modal-title" id="console-title">BPS CONSOLE</span><button class="close-btn" data-close="console-overlay" aria-label="닫기">×</button></div>
-      <div class="modal-body">
-        <div class="console-output" id="console-output"></div>
-        <form class="console-input-row" id="console-form"><input id="console-input" autocomplete="off" placeholder="명령어 입력: help" /><button class="action-btn primary" type="submit">RUN</button></form>
-        <p class="small-note">지원 명령어: help, clear, data, stats, export, find [검색어], add [주제] | [속성] | [정보]</p>
-      </div>
-    </section>
-  </div>
-  <div class="toast" id="toast" role="status"></div>
+    <div class="field">  
+        <label for="data-meaning">MEANING</label>  
+        <textarea id="data-meaning" placeholder="예: www.naver.com"></textarea>  
+    </div>  
 
-  <script>
-    (() => {
-      'use strict';
-      const STORAGE_KEY = 'BUPSENT_DATA_V1';
-      const ACCESS_CODE = '3868';
-      const $ = (selector) => document.querySelector(selector);
-      const chatbox = $('#chatbox');
-      const searchInput = $('#search');
-      const chatCount = $('#chat-count');
-      const knowledgeCount = $('#knowledge-count');
-      let pendingProtectedAction = 'data';
-      let toastTimer;
+    <button class="action-button" id="save-data-button">SAVE DATA</button>  
 
-      function makeId() {
-        return 'BPS-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
-      }
-      function nowIso() { return new Date().toISOString(); }
-      function safeString(value) { return value == null ? '' : String(value).trim(); }
-      function normalize(value) {
-        return safeString(value).toLocaleLowerCase('ko-KR').replace(/[?!.,。？！:;"'“”‘’()[\]{}]/g, ' ').replace(/\s+/g, ' ').trim();
-      }
-      function escapeHtml(value) {
-        return safeString(value).replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
-      }
-      function readRawData() {
-        try {
-          const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-          return Array.isArray(parsed) ? parsed : [];
-        } catch (error) {
-          console.error('BPS data read error:', error);
-          return [];
-        }
-      }
-      function normalizeRecord(item) {
-        const content = safeString(item.content ?? item.CONTENT ?? item.subject ?? item.SUBJECT);
-        const meaning = safeString(item.meaning ?? item.MEANING ?? item.object ?? item.OBJECT);
-        const typeRaw = safeString(item.type ?? item.TYPE ?? 'KNOWLEDGE').toUpperCase();
-        const type = ['WORD','SENTENCE','KNOWLEDGE'].includes(typeRaw) ? typeRaw : 'KNOWLEDGE';
-        return {
-          id: safeString(item.id ?? item.ID) || makeId(),
-          type,
-          content,
-          meaning,
-          subject: safeString(item.subject ?? item.SUBJECT ?? content),
-          predicate: safeString(item.predicate ?? item.PREDICATE),
-          object: safeString(item.object ?? item.OBJECT ?? meaning),
-          aliases: Array.isArray(item.aliases) ? item.aliases.map(safeString).filter(Boolean) : safeString(item.aliases ?? item.ALIASES).split(',').map(safeString).filter(Boolean),
-          source: safeString(item.source) || 'user',
-          createdAt: safeString(item.createdAt ?? item.created_at) || nowIso(),
-          updatedAt: safeString(item.updatedAt ?? item.updated_at) || nowIso()
-        };
-      }
-      function getRecords() { return readRawData().map(normalizeRecord).filter(r => r.content || r.subject || r.meaning || r.object); }
-      function saveRecords(records) {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(records.map(normalizeRecord)));
-          updateStats();
-          return true;
-        } catch (error) {
-          showToast('저장 실패: 브라우저 저장 공간을 확인하세요.');
-          console.error(error);
-          return false;
-        }
-      }
-      function addRecord({ type='KNOWLEDGE', subject='', predicate='', object='', aliases=[], source='user' }) {
-        subject = safeString(subject); predicate = safeString(predicate); object = safeString(object);
-        if (!subject || !object) return { ok:false, message:'주제와 정보는 비워둘 수 없습니다.' };
-        const records = getRecords();
-        const isDuplicate = records.some(r => r.type === type && normalize(r.subject || r.content) === normalize(subject) && normalize(r.predicate) === normalize(predicate) && normalize(r.object || r.meaning) === normalize(object));
-        if (isDuplicate) return { ok:false, message:'같은 내용이 이미 저장되어 있습니다.' };
-        const record = normalizeRecord({ id:makeId(), type, content:subject, meaning:object, subject, predicate, object, aliases, source, createdAt:nowIso(), updatedAt:nowIso() });
-        records.unshift(record);
-        if (!saveRecords(records)) return { ok:false, message:'저장하지 못했습니다.' };
-        return { ok:true, record, message:'정보를 저장했습니다.' };
-      }
-      function deleteRecord(id) {
-        const records = getRecords();
-        const next = records.filter(r => r.id !== id);
-        if (next.length === records.length) return false;
-        return saveRecords(next);
-      }
-      function updateStats() {
-        const records = getRecords();
-        knowledgeCount.textContent = records.length + ' RECORD' + (records.length === 1 ? '' : 'S');
-        const count = chatbox.querySelectorAll('.message').length;
-        chatCount.textContent = count + ' MESSAGE' + (count === 1 ? '' : 'S');
-      }
-      function showToast(message) {
-        const toast = $('#toast'); toast.textContent = message; toast.classList.add('show');
-        clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
-      }
-      function openOverlay(id) { $('#' + id).classList.add('show'); }
-      function closeOverlay(id) { $('#' + id).classList.remove('show'); }
-      function askForAccess(action) {
-        pendingProtectedAction = action;
-        $('#password-input').value = '';
-        openOverlay('password-overlay');
-        setTimeout(() => $('#password-input').focus(), 50);
-      }
-      function verifyAccess() {
-        if ($('#password-input').value === ACCESS_CODE) {
-          closeOverlay('password-overlay');
-          if (pendingProtectedAction === 'data') { renderDataList(); openOverlay('data-overlay'); }
-          else { openOverlay('console-overlay'); consolePrint('BPS CONSOLE v1.1\nType "help" to see available commands.'); }
-        } else {
-          showToast('비밀번호가 올바르지 않습니다.');
-          $('#password-input').select();
-        }
-      }
-      function linkify(text) {
-        const escaped = escapeHtml(text);
-        return escaped.replace(/(https?:\/\/[^\s<]+|www\.[^\s<]+)/gi, (url) => {
-          const clean = url.replace(/[),.!?]+$/g, '');
-          const suffix = url.slice(clean.length);
-          const href = /^https?:\/\//i.test(clean) ? clean : 'https://' + clean;
-          return '<a href="' + href + '" target="_blank" rel="noopener noreferrer">' + clean + '</a>' + suffix;
-        }).replace(/\n/g, '<br>');
-      }
-      function addMessage(role, text) {
-        const welcome = $('#welcome'); if (welcome) welcome.remove();
-        const wrapper = document.createElement('div'); wrapper.className = 'message ' + role;
-        const meta = document.createElement('div'); meta.className = 'message-meta';
-        meta.textContent = (role === 'user' ? 'YOU' : 'BPS AI') + ' · ' + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
-        const bubble = document.createElement('div'); bubble.className = 'bubble';
-        if (role === 'ai') bubble.innerHTML = linkify(text); else bubble.textContent = text;
-        wrapper.append(meta, bubble); chatbox.appendChild(wrapper); chatbox.scrollTop = chatbox.scrollHeight; updateStats();
-      }
-      function getSubjectFacts(subject) {
-        const key = normalize(subject);
-        return getRecords().filter(r => normalize(r.subject || r.content) === key || r.aliases.some(a => normalize(a) === key));
-      }
-      const predicateAliases = {
-        '색깔':['색깔','색상','색','무슨 색','어떤 색'],
-        '분류':['분류','종류','유형','어떤 종류','무슨 종류'],
-        '정의':['정의','뜻','의미','무엇','뭐야'],
-        '위치':['위치','어디','장소'],
-        '용도':['용도','사용','쓰임','어디에 사용'],
-        '주소':['주소','웹사이트','사이트','링크','url']
-      };
-      function identifyPredicate(question) {
-        const q = normalize(question);
-        for (const [canonical, aliases] of Object.entries(predicateAliases)) {
-          if (aliases.some(alias => q.includes(normalize(alias)))) return canonical;
-        }
-        const candidates = getRecords().map(r => r.predicate).filter(Boolean).sort((a,b) => b.length-a.length);
-        return candidates.find(p => q.includes(normalize(p))) || '';
-      }
-      function findSubjectInQuestion(question) {
-        const q = normalize(question);
-        const records = getRecords().slice().sort((a,b) => (b.subject || b.content).length - (a.subject || a.content).length);
-        for (const record of records) {
-          const candidates = [record.subject || record.content, ...record.aliases].filter(Boolean);
-          for (const candidate of candidates) if (normalize(candidate) && q.includes(normalize(candidate))) return record.subject || record.content;
-        }
-        const first = safeString(question).replace(/^(저장|기억|알려줘|찾아줘)\s*[:：]?\s*/i, '').split(/\s+(?:의|은|는|이|가|을|를|색깔|색상|색|종류|분류|뜻|의미|뭐야|무엇|어디).*$/)[0].trim();
-        return first.replace(/[?？!！.。]+$/g, '').trim();
-      }
-      function queryKnowledge(question) {
-        const subject = findSubjectInQuestion(question);
-        if (!subject) return null;
-        const facts = getSubjectFacts(subject);
-        if (!facts.length) return null;
-        const predicate = identifyPredicate(question);
-        const filtered = predicate ? facts.filter(r => normalize(r.predicate) === normalize(predicate) || (predicate === '분류' && ['종류','유형'].includes(normalize(r.predicate))) || (predicate === '색깔' && ['색','색상'].includes(normalize(r.predicate)))) : facts;
-        if (!filtered.length && predicate) return '저장된 정보에서 "' + subject + '"의 "' + predicate + '" 정보를 찾지 못했습니다. BPS DATA에서 추가해 주세요.';
-        const unique = [...new Set(filtered.map(r => {
-          const pred = r.predicate ? ' (' + r.predicate + ')' : '';
-          return '• ' + (r.subject || r.content) + pred + ': ' + (r.object || r.meaning);
-        }))];
-        return unique.join('\n');
-      }
-      function parseTriple(raw) {
-        const parts = raw.split('|').map(safeString);
-        if (parts.length < 3) return null;
-        return { subject:parts[0], predicate:parts[1], object:parts.slice(2).join(' | ') };
-      }
-      function handleSaveCommand(text) {
-        const raw = text.replace(/^저장\s*[:：]\s*/, '');
-        const triple = parseTriple(raw);
-        if (triple) {
-          const result = addRecord({ type:'KNOWLEDGE', ...triple, source:'user-command' });
-          return result.message + (result.ok ? '\n' + triple.subject + ' | ' + triple.predicate + ' | ' + triple.object : ' ' + result.message);
-        }
-        const parts = raw.split(/\s*[:：]\s*/);
-        if (parts.length >= 2) {
-          const result = addRecord({ type:'KNOWLEDGE', subject:parts[0], predicate:'', object:parts.slice(1).join(': '), source:'user-command' });
-          return result.ok ? '정보를 저장했습니다.\n주제: ' + parts[0] + '\n정보: ' + parts.slice(1).join(': ') : result.message;
-        }
-        return '저장 형식을 확인해 주세요.\n추천 형식: 저장: 주제 | 속성 | 정보\n예: 저장: 사과 | 색깔 | 빨간색';
-      }
-      function getAssistantReply(text) {
-        const raw = safeString(text); const q = normalize(raw);
-        if (!raw) return '메시지를 입력해 주세요.';
-        if (/^저장\s*[:：]/i.test(raw)) return handleSaveCommand(raw);
-        if (/^\/bps\s+data$/i.test(raw)) { askForAccess('data'); return 'BPS DATA 접근을 요청했습니다. 비밀번호 창을 확인하세요.'; }
-        if (/^\/bps\s+console$/i.test(raw)) { askForAccess('console'); return 'BPS CONSOLE 접근을 요청했습니다. 비밀번호 창을 확인하세요.'; }
-        if (/^\/bps\s+help$/i.test(raw) || q === '도움말' || q === 'help') return '사용 가능한 기능\n• 저장: 주제 | 속성 | 정보\n• 주제만 입력하면 저장된 관련 정보를 조회합니다.\n• /bps data : 데이터 관리자 열기\n• /bps console : 콘솔 열기\n• /bps help : 도움말\n• 같은 주제에 여러 속성과 정보를 저장할 수 있습니다.';
-        if (/^\/learn\s+/i.test(raw)) {
-          const triple = parseTriple(raw.replace(/^\/learn\s+/i, ''));
-          if (!triple) return '형식: /learn 주제 | 속성 | 정보';
-          const result = addRecord({ type:'KNOWLEDGE', ...triple, source:'learn-command' });
-          return result.ok ? '학습 데이터(지식)를 저장했습니다.\n' + triple.subject + ' | ' + triple.predicate + ' | ' + triple.object : result.message;
-        }
-        if (/^(?:저장해|기억해|이거 기억해)$/i.test(q)) return '기억할 내용을 뒤에 붙여서 입력해 주세요.\n예: 저장: 사과 | 색깔 | 빨간색';
-        if (/^(?:안녕|안녕하세요|하이|hello|hi)$/.test(q)) return '안녕하세요. BPS AI입니다.\n지금은 저장된 지식을 검색하는 초기 버전입니다. 정보를 저장한 뒤 질문해 보세요.';
-        if (q.includes('실시간') && /(유튜브|조회수|주식|주가|변동률)/.test(q)) return '이 기능은 앞으로 연결할 수 있도록 남겨 둔 기능입니다. 현재 버전에는 실시간 웹/API 연결이 없어 실제 데이터를 확인할 수 없습니다. 데이터를 임의로 만들어 답하지 않겠습니다.';
-        if (/(롤|리그 오브 레전드|챔피언)/.test(q) && /(근접|챔피언|나열)/.test(q)) return '현재 BPS AI에는 리그 오브 레전드 챔피언 데이터가 연결되어 있지 않습니다. 챔피언 목록 데이터를 추가하면 근접 챔피언을 분류하도록 발전시킬 수 있습니다.';
-        const answer = queryKnowledge(raw);
-        if (answer) return answer;
-        const exact = getRecords().filter(r => normalize(r.content) === q || normalize(r.subject) === q || r.aliases.some(a => normalize(a) === q));
-        if (exact.length) return [...new Set(exact.map(r => '• ' + (r.predicate ? r.predicate + ': ' : '') + (r.object || r.meaning)))].join('\n');
-        if (q === 'bps' || q === 'bps ai' || q === 'bupsent') return 'BPS AI 시스템이 실행 중입니다. 현재는 저장된 지식을 검색하고 관리하는 단계입니다.\n새 지식은 “저장: 주제 | 속성 | 정보” 형식으로 추가할 수 있습니다.';
-        return '아직 이 질문에 답할 수 있는 저장된 지식이 없습니다.\n\n새 정보를 알려주려면 다음 형식을 사용하세요.\n저장: 주제 | 속성 | 정보\n예: 저장: 사과 | 색깔 | 빨간색\n\n이 버전의 “저장”은 지식 데이터를 추가하는 기능이며, 신경망 모델 자체를 훈련하는 것은 아닙니다.';
-      }
-      function sendMessage(text) {
-        const clean = safeString(text); if (!clean) return;
-        addMessage('user', clean);
-        const reply = getAssistantReply(clean);
-        if (reply) addMessage('ai', reply);
-        searchInput.value = ''; searchInput.style.height = 'auto'; searchInput.focus();
-        updateStats();
-      }
-      function renderDataList() {
-        const list = $('#data-list'); const filter = normalize($('#data-filter').value);
-        const records = getRecords().filter(r => !filter || [r.type,r.content,r.meaning,r.subject,r.predicate,r.object,...r.aliases].some(v => normalize(v).includes(filter)));
-        list.innerHTML = '';
-        if (!records.length) { list.innerHTML = '<div class="small-note">' + (getRecords().length ? '검색 결과가 없습니다.' : '아직 저장된 데이터가 없습니다.') + '</div>'; return; }
-        records.forEach(record => {
-          const item = document.createElement('article'); item.className = 'data-item';
-          const top = document.createElement('div'); top.className = 'data-item-top';
-          const type = document.createElement('span'); type.className = 'data-type'; type.textContent = record.type + (record.predicate ? ' · ' + record.predicate : '');
-          const date = document.createElement('span'); date.className = 'data-date';
-          const d = new Date(record.createdAt); date.textContent = Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('ko-KR');
-          top.append(type,date);
-          const content = document.createElement('div'); content.className = 'data-content'; content.textContent = record.subject || record.content;
-          const meaning = document.createElement('div'); meaning.className = 'data-meaning'; meaning.textContent = record.object || record.meaning;
-          item.append(top,content,meaning);
-          if (record.aliases.length) { const aliases = document.createElement('div'); aliases.className = 'data-meaning'; aliases.textContent = '별칭: ' + record.aliases.join(', '); item.append(aliases); }
-          const actions = document.createElement('div'); actions.className = 'data-item-actions';
-          const edit = document.createElement('button'); edit.className = 'tiny-btn'; edit.textContent = 'EDIT'; edit.type = 'button'; edit.addEventListener('click', () => fillRecordForm(record));
-          const del = document.createElement('button'); del.className = 'tiny-btn'; del.textContent = 'DELETE'; del.type = 'button'; del.addEventListener('click', () => { if (confirm('이 데이터를 삭제할까요?')) { deleteRecord(record.id); renderDataList(); showToast('데이터를 삭제했습니다.'); } });
-          actions.append(edit,del); item.append(actions); list.append(item);
-        });
-      }
-      function fillRecordForm(record) {
-        $('#record-type').value = record.type; $('#record-subject').value = record.subject || record.content;
-        $('#record-predicate').value = record.predicate; $('#record-object').value = record.object || record.meaning;
-        $('#record-aliases').value = record.aliases.join(', ');
-        $('#save-record').dataset.editId = record.id; $('#save-record').textContent = 'UPDATE DATA';
-        $('#record-subject').focus();
-      }
-      function clearRecordForm() {
-        ['record-subject','record-predicate','record-object','record-aliases'].forEach(id => $('#' + id).value = '');
-        $('#record-type').value = 'KNOWLEDGE'; delete $('#save-record').dataset.editId; $('#save-record').textContent = 'SAVE DATA';
-      }
-      function saveRecordFromForm() {
-        const type = $('#record-type').value, subject = safeString($('#record-subject').value), predicate = safeString($('#record-predicate').value), object = safeString($('#record-object').value), aliases = $('#record-aliases').value.split(',').map(safeString).filter(Boolean);
-        if (!subject || !object) { showToast('주제와 정보는 필수입니다.'); return; }
-        const editId = $('#save-record').dataset.editId;
-        if (editId) {
-          const records = getRecords(); const index = records.findIndex(r => r.id === editId);
-          if (index >= 0) {
-            records[index] = normalizeRecord({ ...records[index], type, content:subject, meaning:object, subject, predicate, object, aliases, updatedAt:nowIso() });
-            if (saveRecords(records)) showToast('데이터를 수정했습니다.');
-          }
-        } else {
-          const result = addRecord({ type, subject, predicate, object, aliases, source:'data-manager' });
-          if (!result.ok) { showToast(result.message); return; }
-          showToast(result.message);
-        }
-        clearRecordForm(); renderDataList();
-      }
-      function exportData() {
-        const payload = { app:'BPS AI', schemaVersion:2, exportedAt:nowIso(), records:getRecords() };
-        const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
-        const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'bps-data.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); showToast('JSON 파일 내보내기를 시작했습니다.');
-      }
-      async function importDataFile(file) {
-        if (!file) return;
-        try {
-          const parsed = JSON.parse(await file.text());
-          const imported = Array.isArray(parsed) ? parsed : Array.isArray(parsed.records) ? parsed.records : Array.isArray(parsed.data) ? parsed.data : null;
-          if (!imported) throw new Error('JSON 안에서 데이터 목록을 찾을 수 없습니다.');
-          const current = getRecords(); const byId = new Map(current.map(r => [r.id,r]));
-          let added = 0;
-          imported.forEach(raw => {
-            const record = normalizeRecord(raw);
-            if (!record.content && !record.subject) return;
-            if (!byId.has(record.id)) { byId.set(record.id, record); added++; }
-          });
-          if (saveRecords([...byId.values()])) { renderDataList(); showToast(added + '개 데이터를 가져왔습니다.'); }
-        } catch (error) { showToast('가져오기 실패: ' + error.message); }
-        $('#import-file').value = '';
-      }
-      const consoleOutput = $('#console-output');
-      function consolePrint(text) { const line = document.createElement('div'); line.className = 'console-line'; line.textContent = text; consoleOutput.append(line); consoleOutput.scrollTop = consoleOutput.scrollHeight; }
-      function runConsoleCommand(command) {
-        const raw = safeString(command); if (!raw) return;
-        consolePrint('> ' + raw);
-        const [first, ...rest] = raw.split(' '); const arg = rest.join(' ').trim();
-        switch (first.toLowerCase()) {
-          case 'help': consolePrint('help              - 명령어 목록\nclear             - 콘솔 지우기\ndata              - 저장 데이터 보기\nstats             - 데이터 통계\nexport            - JSON 내보내기\nfind [검색어]     - 저장 데이터 검색\nadd A | B | C     - 지식 추가'); break;
-          case 'clear': consoleOutput.innerHTML = ''; break;
-          case 'data': consolePrint(JSON.stringify(getRecords(), null, 2)); break;
-          case 'stats': { const records=getRecords(); consolePrint('전체: '+records.length+'\n지식: '+records.filter(r=>r.type==='KNOWLEDGE').length+'\n단어: '+records.filter(r=>r.type==='WORD').length+'\n문장: '+records.filter(r=>r.type==='SENTENCE').length); break; }
-          case 'export': exportData(); consolePrint('JSON 내보내기를 요청했습니다.'); break;
-          case 'find': { if (!arg) { consolePrint('사용법: find 검색어'); break; } const matches=getRecords().filter(r=>[r.subject,r.predicate,r.object,r.content,r.meaning,...r.aliases].some(v=>normalize(v).includes(normalize(arg)))); consolePrint(matches.length ? JSON.stringify(matches, null, 2) : '검색 결과가 없습니다.'); break; }
-          case 'add': { const triple=parseTriple(arg); if (!triple) { consolePrint('사용법: add 주제 | 속성 | 정보'); break; } const result=addRecord({type:'KNOWLEDGE',...triple,source:'console'}); consolePrint(result.message); break; }
-          default: consolePrint('알 수 없는 명령어입니다. help를 입력하세요.');
-        }
-      }
+    <div class="data-actions">  
+        <button class="action-button" id="export-data-button">EXPORT JSON</button>  
+    </div>  
 
-      $('#chat-form').addEventListener('submit', event => { event.preventDefault(); sendMessage(searchInput.value); });
-      searchInput.addEventListener('keydown', event => {
-        if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); $('#chat-form').requestSubmit(); }
-      });
-      searchInput.addEventListener('input', () => { searchInput.style.height = 'auto'; searchInput.style.height = Math.min(searchInput.scrollHeight,125) + 'px'; });
-      $('#open-data').addEventListener('click', () => askForAccess('data'));
-      $('#open-console').addEventListener('click', () => askForAccess('console'));
-      $('#password-submit').addEventListener('click', verifyAccess);
-      $('#password-input').addEventListener('keydown', event => { if (event.key === 'Enter') verifyAccess(); });
-      document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => closeOverlay(button.dataset.close)));
-      document.querySelectorAll('.overlay').forEach(overlay => overlay.addEventListener('click', event => { if (event.target === overlay) closeOverlay(overlay.id); }));
-      $('#save-record').addEventListener('click', saveRecordFromForm);
-      $('#clear-record-form').addEventListener('click', clearRecordForm);
-      $('#data-filter').addEventListener('input', renderDataList);
-      $('#export-data').addEventListener('click', exportData);
-      $('#import-data').addEventListener('click', () => $('#import-file').click());
-      $('#import-file').addEventListener('change', event => importDataFile(event.target.files[0]));
-      $('#delete-all-data').addEventListener('click', () => { if (confirm('정말 모든 BPS 데이터를 삭제할까요? 이 작업은 되돌릴 수 없습니다.')) { saveRecords([]); renderDataList(); clearRecordForm(); showToast('모든 데이터를 삭제했습니다.'); } });
-      $('#console-form').addEventListener('submit', event => { event.preventDefault(); runConsoleCommand($('#console-input').value); $('#console-input').value=''; });
-      document.addEventListener('keydown', event => { if (event.key === 'Escape') document.querySelectorAll('.overlay.show').forEach(overlay => closeOverlay(overlay.id)); });
+    <div id="data-list"></div>  
+</section>
 
-      // One-time compatibility pass: old CONTENT/MEANING records are normalized without deleting them.
-      try { const raw=readRawData(); if (raw.length) localStorage.setItem(STORAGE_KEY, JSON.stringify(raw.map(normalizeRecord))); } catch (error) { console.warn('Compatibility conversion skipped:', error); }
-      updateStats();
-    })();
-  </script>
-</body>
+</div>  <!-- 터미널 창 -->  <div class="overlay" id="terminal-overlay">  
+    <section class="window">  
+        <header class="window-header">  
+            <h2>BPS CONSOLE</h2>  
+            <button class="close-button" data-close="terminal-overlay" aria-label="닫기">&times;</button>  
+        </header>  <div id="terminal-output">BPS CONSOLE READY
+
+help - 명령어 목록
+clear - 화면 지우기
+data - 저장된 데이터 개수 확인</div>
+
+<input id="terminal-input" type="text" placeholder="명령어 입력..." autocomplete="off">  
+</section>
+
+</div>  <script>  
+const searchInput = document.getElementById("search");  
+const chatbox = document.getElementById("chatbox");  
+const inputArea = document.getElementById("input-area");  
+  
+const passwordOverlay = document.getElementById("password-overlay");  
+const passwordInput = document.getElementById("password-input");  
+  
+const dataOverlay = document.getElementById("data-overlay");  
+const terminalOverlay = document.getElementById("terminal-overlay");  
+  
+const dataContent = document.getElementById("data-content");  
+const dataMeaning = document.getElementById("data-meaning");  
+const dataType = document.getElementById("data-type");  
+const dataList = document.getElementById("data-list");  
+  
+const terminalOutput = document.getElementById("terminal-output");  
+const terminalInput = document.getElementById("terminal-input");  
+  
+const STORAGE_KEY = "BUPSENT_DATA_V1";  
+const PASSWORD = "3868";  
+  
+let pendingDestination = "";  
+let lastFocusedElement = null;  
+  
+/* 저장된 데이터 불러오기 */  
+  
+function getStoredData() {  
+    try {  
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");  
+        return Array.isArray(stored) ? stored : [];  
+    } catch (error) {  
+        return [];  
+    }  
+}  
+  
+/* 저장된 데이터 기록하기 */  
+  
+function setStoredData(data) {  
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));  
+}  
+  
+/* 처음 화면 아이콘 */  
+  
+function showWelcome() {  
+    if (chatbox.querySelector(".message")) {  
+        return;  
+    }  
+  
+    if (!document.getElementById("welcome")) {  
+        const welcome = document.createElement("div");  
+        welcome.id = "welcome";  
+  
+        const icon = document.createElement("div");  
+        icon.id = "welcome-icon";  
+        icon.textContent = "◈";  
+  
+        welcome.appendChild(icon);  
+        chatbox.appendChild(welcome);  
+    }  
+}  
+  
+/* 메시지 추가 */  
+  
+function addMessage(text, type) {  
+    const welcome = document.getElementById("welcome");  
+  
+    if (welcome) {  
+        welcome.remove();  
+    }  
+  
+    const message = document.createElement("div");  
+    message.className = "message " + type;  
+  
+    /*  
+      AI 답변에서만 웹사이트 주소를 링크로 변환한다.  
+      사용자 메시지는 HTML로 해석하지 않고 일반 텍스트로 표시한다.  
+    */  
+  
+    if (type === "ai-message") {  
+        renderAIResponse(message, text);  
+    } else {  
+        message.textContent = text;  
+    }  
+  
+    chatbox.prepend(message);  
+}  
+  
+/* 웹사이트 주소인지 확인 */  
+  
+function getWebsiteURL(text) {  
+    const value = text.trim();  
+  
+    if (!value) {  
+        return null;  
+    }  
+  
+    /*  
+      http://, https://, www. 주소 또는 일반 도메인 형식을 확인한다.  
+      예: www.naver.com  
+      예: naver.com  
+      예: https://www.naver.com  
+    */  
+  
+    const hasProtocol = /^https?:\/\//i.test(value);  
+    const looksLikeDomain =  
+        /^(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)+(?::\d{1,5})?(\/[^\s]*)?$/i.test(value);  
+  
+    if (!hasProtocol && !looksLikeDomain) {  
+        return null;  
+    }  
+  
+    const urlText = hasProtocol ? value : "https://" + value;  
+  
+    try {  
+        const url = new URL(urlText);  
+  
+        if (url.protocol !== "http:" && url.protocol !== "https:") {  
+            return null;  
+        }  
+  
+        if (!url.hostname.includes(".")) {  
+            return null;  
+        }  
+  
+        return url.href;  
+    } catch (error) {  
+        return null;  
+    }  
+}  
+  
+/* AI 답변 표시: 주소면 클릭 가능한 링크 */  
+  
+function renderAIResponse(container, text) {  
+    const url = getWebsiteURL(text);  
+  
+    if (url) {  
+        const link = document.createElement("a");  
+  
+        link.className = "ai-link";  
+        link.href = url;  
+        link.target = "_blank";  
+        link.rel = "noopener noreferrer";  
+        link.textContent = text.trim();  
+  
+        container.appendChild(link);  
+        return;  
+    }  
+  
+    container.textContent = text;  
+}  
+  
+/* CONTENT와 일치하는 데이터의 MEANING 찾기 */  
+  
+function findSavedMeaning(userText) {  
+    const data = getStoredData();  
+    const normalizedInput = userText.trim().toLocaleLowerCase();  
+  
+    if (!normalizedInput) {  
+        return null;  
+    }  
+  
+    const matched = data.find(item => {  
+        if (  
+            typeof item.content !== "string" ||  
+            typeof item.meaning !== "string"  
+        ) {  
+            return false;  
+        }  
+  
+        return item.content.trim().toLocaleLowerCase() === normalizedInput;  
+    });  
+  
+    return matched ? matched.meaning : null;  
+}  
+  
+/* AI 답변 결정 */  
+  
+function getAIResponse(userText) {  
+    const input = userText.trim();  
+  
+    if (!input) {  
+        return "";  
+    }  
+  
+    /*  
+      명령어를 먼저 검사한다.  
+      그래야 /bps data와 /bps console이 정상 작동한다.  
+    */  
+  
+    if (input === "/bps data") {  
+        pendingDestination = "data-overlay";  
+        openPasswordWindow();  
+        return "";  
+    }  
+  
+    if (input === "/bps console") {  
+        pendingDestination = "terminal-overlay";  
+        openPasswordWindow();  
+        return "";  
+    }  
+  
+    /*  
+      사용자가 입력한 단어와 CONTENT가 일치하면  
+      저장된 MEANING을 그대로 답변한다.  
+    */  
+  
+    const savedMeaning = findSavedMeaning(input);  
+  
+    if (savedMeaning !== null) {  
+        return savedMeaning;  
+    }  
+  
+    if (input.toLowerCase() === "bps") {  
+        return "BPS AI 시스템에 접속했습니다.";  
+    }  
+  
+    return "아직 저장된 답변이 없습니다.";  
+}  
+  
+/* 메시지 전송 */  
+  
+function askAI() {  
+    const text = searchInput.value.trim();  
+  
+    if (!text) {  
+        return;  
+    }  
+  
+    addMessage(text, "user-message");  
+  
+    searchInput.value = "";  
+    searchInput.style.height = "50px";  
+  
+    const response = getAIResponse(text);  
+  
+    if (response) {  
+        addMessage(response, "ai-message");  
+    }  
+}  
+  
+inputArea.addEventListener("submit", function(event) {  
+    event.preventDefault();  
+    askAI();  
+});  
+  
+searchInput.addEventListener("keydown", function(event) {  
+    if (  
+        event.key === "Enter" &&  
+        !event.shiftKey &&  
+        !event.isComposing  
+    ) {  
+        event.preventDefault();  
+        askAI();  
+    }  
+});  
+  
+searchInput.addEventListener("input", function() {  
+    this.style.height = "50px";  
+    this.style.height = Math.min(this.scrollHeight, 120) + "px";  
+});  
+  
+/* 비밀번호 창 열기 */  
+  
+function openPasswordWindow() {  
+    lastFocusedElement = document.activeElement;  
+    passwordInput.value = "";  
+    passwordOverlay.classList.add("active");  
+  
+    setTimeout(function() {  
+        passwordInput.focus();  
+    }, 50);  
+}  
+  
+/* 비밀번호 검사 */  
+  
+passwordInput.addEventListener("input", function() {  
+    this.value = this.value.replace(/\D/g, "").slice(0, 4);  
+});  
+  
+passwordInput.addEventListener("keydown", function(event) {  
+    if (event.key !== "Enter") {  
+        return;  
+    }  
+  
+    event.preventDefault();  
+  
+    if (passwordInput.value.length !== 4) {  
+        return;  
+    }  
+  
+    if (passwordInput.value !== PASSWORD) {  
+        passwordInput.value = "";  
+        return;  
+    }  
+  
+    passwordOverlay.classList.remove("active");  
+  
+    if (pendingDestination === "data-overlay") {  
+        dataOverlay.classList.add("active");  
+        renderDataList();  
+    } else if (pendingDestination === "terminal-overlay") {  
+        terminalOverlay.classList.add("active");  
+        terminalInput.focus();  
+    }  
+  
+    pendingDestination = "";  
+});  
+  
+/* 창 닫기 */  
+  
+function closeOverlay(overlay) {  
+    overlay.classList.remove("active");  
+  
+    if (overlay === passwordOverlay) {  
+        pendingDestination = "";  
+    }  
+  
+    if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {  
+        lastFocusedElement.focus();  
+    }  
+}  
+  
+document.querySelectorAll("[data-close]").forEach(button => {  
+    button.addEventListener("click", function() {  
+        const overlay = document.getElementById(this.dataset.close);  
+        closeOverlay(overlay);  
+    });  
+});  
+  
+[passwordOverlay, dataOverlay, terminalOverlay].forEach(overlay => {  
+    overlay.addEventListener("click", function(event) {  
+        if (event.target === overlay) {  
+            closeOverlay(overlay);  
+        }  
+    });  
+});  
+  
+document.addEventListener("keydown", function(event) {  
+    if (event.key === "Escape") {  
+        [passwordOverlay, dataOverlay, terminalOverlay].forEach(overlay => {  
+            if (overlay.classList.contains("active")) {  
+                closeOverlay(overlay);  
+            }  
+        });  
+    }  
+});  
+  
+/* 데이터 저장 */  
+  
+document.getElementById("save-data-button").addEventListener("click", function() {  
+    const content = dataContent.value.trim();  
+    const meaning = dataMeaning.value.trim();  
+    const type = dataType.value;  
+  
+    if (!content || !meaning) {  
+        alert("CONTENT와 MEANING을 모두 입력해 주세요.");  
+        return;  
+    }  
+  
+    const data = getStoredData();  
+  
+    const existingIndex = data.findIndex(item =>  
+        item.type === type &&  
+        item.content.trim().toLocaleLowerCase() === content.toLocaleLowerCase()  
+    );  
+  
+    const newItem = {  
+        type: type,  
+        content: content,  
+        meaning: meaning,  
+        updatedAt: new Date().toISOString()  
+    };  
+  
+    if (existingIndex >= 0) {  
+        data[existingIndex] = newItem;  
+    } else {  
+        data.push(newItem);  
+    }  
+  
+    try {  
+        setStoredData(data);  
+  
+        dataContent.value = "";  
+        dataMeaning.value = "";  
+  
+        renderDataList();  
+    } catch (error) {  
+        alert("저장하지 못했습니다. 브라우저 저장 공간을 확인해 주세요.");  
+    }  
+});  
+  
+/* 저장 데이터 목록 */  
+  
+function renderDataList() {  
+    const data = getStoredData();  
+    dataList.replaceChildren();  
+  
+    if (data.length === 0) {  
+        const empty = document.createElement("p");  
+        empty.style.color = "var(--muted)";  
+        empty.style.fontSize = "13px";  
+        empty.textContent = "저장된 데이터가 없습니다.";  
+  
+        dataList.appendChild(empty);  
+        return;  
+    }  
+  
+    data.slice().reverse().forEach(item => {  
+        const card = document.createElement("div");  
+        card.className = "data-item";  
+  
+        const typeLabel = document.createElement("strong");  
+        typeLabel.textContent = String(item.type || "").toUpperCase();  
+  
+        const content = document.createElement("p");  
+        content.textContent = "CONTENT: " + item.content;  
+  
+        const meaning = document.createElement("p");  
+        meaning.textContent = "MEANING: " + item.meaning;  
+  
+        const deleteButton = document.createElement("button");  
+        deleteButton.className = "action-button";  
+        deleteButton.textContent = "DELETE";  
+  
+        deleteButton.addEventListener("click", function() {  
+            const currentData = getStoredData();  
+  
+            const index = currentData.findIndex(entry =>  
+                entry.type === item.type &&  
+                entry.content === item.content &&  
+                entry.meaning === item.meaning  
+            );  
+  
+            if (index !== -1) {  
+                currentData.splice(index, 1);  
+                setStoredData(currentData);  
+                renderDataList();  
+            }  
+        });  
+  
+        card.append(typeLabel, content, meaning, deleteButton);  
+        dataList.appendChild(card);  
+    });  
+}  
+  
+/* JSON 파일로 내보내기 */  
+  
+document.getElementById("export-data-button").addEventListener("click", function() {  
+    const data = getStoredData();  
+  
+    const blob = new Blob(  
+        [JSON.stringify(data, null, 2)],  
+        { type: "application/json" }  
+    );  
+  
+    const url = URL.createObjectURL(blob);  
+    const link = document.createElement("a");  
+  
+    link.href = url;  
+    link.download = "bps-data.json";  
+    link.click();  
+  
+    setTimeout(function() {  
+        URL.revokeObjectURL(url);  
+    }, 1000);  
+});  
+  
+/* 터미널 */  
+  
+function writeTerminal(text) {  
+    terminalOutput.textContent += "\n" + text;  
+    terminalOutput.scrollTop = terminalOutput.scrollHeight;  
+}  
+  
+terminalInput.addEventListener("keydown", function(event) {  
+    if (event.key !== "Enter") {  
+        return;  
+    }  
+  
+    const command = terminalInput.value.trim();  
+    terminalInput.value = "";  
+  
+    if (!command) {  
+        return;  
+    }  
+  
+    if (command === "clear") {  
+        terminalOutput.textContent = "BPS CONSOLE READY";  
+        return;  
+    }  
+  
+    if (command === "help") {  
+        writeTerminal("help - 명령어 목록");  
+        writeTerminal("clear - 화면 지우기");  
+        writeTerminal("data - 저장된 데이터 개수 확인");  
+        return;  
+    }  
+  
+    if (command === "data") {  
+        writeTerminal("저장된 데이터: " + getStoredData().length + "개");  
+        return;  
+    }  
+  
+    writeTerminal("알 수 없는 명령어: " + command);  
+});  
+  
+/* 첫 화면 초기화 */  
+  
+showWelcome();  
+</script>  </body>  
 </html>
